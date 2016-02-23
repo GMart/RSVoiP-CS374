@@ -1,3 +1,5 @@
+package main;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -5,26 +7,29 @@ import java.awt.event.ActionListener;
 /**
  * Created by Garrett on 2/11/2016.
  */
-public class mainForm {
-    private JMenuBar MenuBar;
+public class mainForm extends JFrame {
     private JList contactsList;
     private JScrollPane ContactsScroll;
     private JPanel rootPanel;
     private JButton callButton;
     private JButton sendFileButton;
     private JLabel userLabel;
-    private JMenu fileMenu;
-    private JMenuItem quitItem;
+    private JPanel actionPanel;
+    private JSplitPane splitPanel;
 
-    public void main(String[] args) {
-        JFrame frame = new JFrame("mainForm");
-        frame.setContentPane(new mainForm().rootPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
 
-        frame.setJMenuBar(MenuBar);
-        MenuBar.add(fileMenu);
+    public mainForm() {
+        this.setContentPane(rootPanel);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JMenuBar menuBar;
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem quitItem = new JMenuItem("Quit");
+        menuBar = new JMenuBar();
+
+        this.setJMenuBar(menuBar);
+        menuBar.add(fileMenu);
         fileMenu.add(quitItem);
+
         quitItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -37,9 +42,12 @@ public class mainForm {
                 JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(), "Implementing soon", "Coming soon", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE);
             }
         });
-        frame.setVisible(true);
 
+        this.pack();
+        this.setLocationByPlatform(true);
+        this.setVisible(true);
 
     }
+
 
 }
