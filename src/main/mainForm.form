@@ -111,13 +111,18 @@
                     </constraints>
                     <properties>
                       <horizontalScrollBarPolicy value="31"/>
+                      <inheritsPopupMenu value="true"/>
                     </properties>
                     <border type="none"/>
                     <children>
                       <component id="137b7" class="javax.swing.JTextArea" binding="chatArea">
                         <constraints/>
                         <properties>
+                          <columns value="1"/>
+                          <editable value="false"/>
+                          <inheritsPopupMenu value="true"/>
                           <lineWrap value="true"/>
+                          <name value="chatArea"/>
                           <text value="chat"/>
                           <wrapStyleWord value="true"/>
                         </properties>
@@ -131,7 +136,7 @@
                   <splitpane position="right"/>
                 </constraints>
                 <properties>
-                  <font name="Comic Sans MS" size="14"/>
+                  <font size="14"/>
                   <text value="Enter chat here"/>
                 </properties>
               </component>

@@ -6,11 +6,11 @@ package main;
  *           Date: 3/25/2015
  */
 
-import java.io.*;
-import java.net.*;
-import javax.swing.JOptionPane;
-
-import main.Server;
+import javax.swing.*;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.net.Socket;
 
 public class ServerThread extends Thread {
     private Server server; // The server

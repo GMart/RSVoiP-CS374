@@ -3,21 +3,28 @@ package main;
  * Created by Garrett on 2/11/2016.
  */
 
-import javax.swing.*;
 //import java.awt.event.*;
-import main.Server;
 
+import io.netty.handler.codec.rtsp.RtspDecoder;
+import io.netty.handler.codec.rtsp.RtspEncoder;
+import io.netty.handler.codec.rtsp.RtspHeaders;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.awt.event.ActionListener;
+import java.net.Socket;
 
 public class Main {
+    public static mainForm contentForm;
+
     public static void main(String[] args) throws IOException {
         int port = 8080;
         System.out.println("Test");
+        //RtspDecoder rtspDecoder = new RtspDecoder();
+        //RtspEncoder rtspEncoder = new RtspEncoder();
 
-
+        contentForm = new main.mainForm();
         class serverThread extends Thread {
             @Override
             public void run() {
@@ -30,29 +37,44 @@ public class Main {
                 }
             }
         }
-        class clientUIThread extends Thread {
+        class clientUIThread implements Runnable {
             @Override
             public void run() {
                 try {
-                    ClientUI clientUI = new ClientUI("localhost", port);
+                    ClientUI clientUI = new ClientUI("localhost", port, contentForm);
 
                     clientUI.setVisible(true);
-                    //clientUI.main(args);
+                    clientUI.main(args);
                 } catch (Exception ex) {
+
                 }
             }
         }
-        //  Socket socket = new Socket("localhost", port);
+        //Socket socket = new Socket("localhost", port);
+        //actionCall callButton = new actionCall();
         (new serverThread()).start();
-        (new clientUIThread()).start();
+        // Start up server and client
+        SwingUtilities.invokeLater(new clientUIThread());
 
-        mainForm contentForm = new main.mainForm();
+
         System.out.println("GUI set up!");
 
-        while (true)
-        {
-            contentForm.getComponent(1);
-        }
+
     }
 }
 
+class actionCall implements ActionListener {
+    private String name;
+
+    public actionCall(String user, String addr) {
+        name = user.trim();
+        String address = addr;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        JOptionPane.showMessageDialog(main.mainForm.getFrames()[0], "Will call: " + name);
+
+    }
+}

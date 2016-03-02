@@ -19,18 +19,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 
+
 @SuppressWarnings("serial")
 public class ClientUI extends JFrame implements Runnable, ActionListener {
     private JPanel contentPane;
     // The socket connecting us to the server
     private Socket socket;
+    private mainForm theForm;
 
     // The streams to communicate
     private DataOutputStream dout;
     private DataInputStream din;
 
     private JButton btnSubmitText;
-    private JTextArea chat;
+    //private JTextArea chat = mainForm.chatArea;
     private JTextArea chatInput;
 
     /**
@@ -62,7 +64,7 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
 
 
         // Create the ClientUI
-        ClientUI frame = new ClientUI(host, port);
+        ClientUI frame = new ClientUI(host, port, new mainForm());
         frame.setVisible(true);
     }
 
@@ -72,25 +74,26 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
      * @param host - the host
      * @param port - the port the server is on
      */
-    public ClientUI(String host, int port) {
+    public ClientUI(String host, int port, mainForm form) {
+        theForm = form;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 600, 500);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        setContentPane(contentPane);
-        contentPane.setLayout(null);
+        //setContentPane(contentPane);
+        //contentPane.setLayout(null);
 
         btnSubmitText = new JButton("Submit Text");
         btnSubmitText.setBounds(450, 404, 144, 68);
         contentPane.add(btnSubmitText);
         btnSubmitText.addActionListener(this);
 
-        chat = new JTextArea();
-        chat.setEditable(false);
-        chat.setBounds(6, 6, 588, 386);
-        contentPane.add(chat);
+        //chat = new JTextArea();
+        form.chatArea.setEditable(false);
+        form.chatArea.setBounds(6, 6, 588, 386);
+        //contentPane.add(chat);
 
-        chatInput = new JTextArea();
+        //chatInput = new JTextArea();
         chatInput.setBounds(6, 404, 432, 68);
         contentPane.add(chatInput);
 
@@ -117,12 +120,12 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
     }
 
     // Gets called when the user types something
-    private void processMessage(String message) {
+    protected void processMessage(String message) {
         try {
             // Send it to the server
             dout.writeUTF(message);
             // Clear out text input field
-            chatInput.setText("");
+            theForm.chatText.setText("");
         } catch (IOException ie) {
             System.out.println(ie);
         }
@@ -130,16 +133,19 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
 
     // Display messages from others
     public void run() {
+        chatListener linker = new chatListener();
+        theForm.chatArea.addPropertyChangeListener(linker);
         try {
             // Receive messages as long as it exists
             while (true) {
                 // Get the message
                 String message = din.readUTF();
                 // Print it to the text window
-                chat.append(message + "\n");
+
+                theForm.chatArea.append(message + "\n");
             }
         } catch (IOException ie) {
-            System.out.println(ie);
+            //System.out.println(ie);
         }
     }
 }
