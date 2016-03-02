@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Vector;
 
 /**
  * Created by Garrett on 2/11/2016.
@@ -22,7 +21,7 @@ public class mainForm extends JFrame {
     private JScrollPane contactsScroll;
     private JPanel rootPanel;
     private JButton callButton;
-    private JButton sendButton;
+    JButton sendButton;
     private JLabel userLabel;
     private JPanel actionPanel;
     private JSplitPane splitPanel;

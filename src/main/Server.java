@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 public class Server {
     public static int numOfConnections = 0; // Number of clients connected to server
     private ServerSocket ss; // ServerSocket used for new connections
-
+    private mainForm theForm;
     // Link sockets with DataOutPutStreams
     private Hashtable outputStreams = new Hashtable();
 
@@ -21,7 +21,8 @@ public class Server {
      * @param port - The port the server is using
      * @throws IOException - Try to avoid this
      */
-    public Server(int port) throws IOException {
+    public Server(int port, mainForm content) throws IOException {
+        theForm = content;
         listen(port);
     }
 
@@ -75,7 +76,8 @@ public class Server {
                 // Send a message
                 try {
                     dout.writeUTF(message);
-                    linker.newChat = message;
+                    theForm.chatArea.append(message);
+                    //linker.newChat = message;
 
                 } catch (IOException ie) {
                     System.out.println(ie);
@@ -135,6 +137,6 @@ public class Server {
         }
 
         // Create a Server object
-        new Server(port);
+        new Server(port, new mainForm());
     }
 }

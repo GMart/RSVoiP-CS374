@@ -32,8 +32,8 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
     private DataInputStream din;
 
     private JButton btnSubmitText;
-    //private JTextArea chat = mainForm.chatArea;
-    private JTextArea chatInput;
+    private JTextArea chat = theForm.chatArea;
+    private JTextArea chatInput = theForm.chatText;
 
     /**
      * Launch the application.
@@ -80,8 +80,8 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
         setBounds(100, 100, 600, 500);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        //setContentPane(contentPane);
-        //contentPane.setLayout(null);
+        setContentPane(contentPane);
+        contentPane.setLayout(null);
 
         btnSubmitText = new JButton("Submit Text");
         btnSubmitText.setBounds(450, 404, 144, 68);
@@ -89,8 +89,8 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
         btnSubmitText.addActionListener(this);
 
         //chat = new JTextArea();
-        form.chatArea.setEditable(false);
-        form.chatArea.setBounds(6, 6, 588, 386);
+        //form.chatArea.setEditable(false);
+        //form.chatArea.setBounds(6, 6, 588, 386);
         //contentPane.add(chat);
 
         //chatInput = new JTextArea();
@@ -134,7 +134,7 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
     // Display messages from others
     public void run() {
         chatListener linker = new chatListener();
-        theForm.chatArea.addPropertyChangeListener(linker);
+        //theForm.chatArea.addPropertyChangeListener(linker);
         try {
             // Receive messages as long as it exists
             while (true) {
