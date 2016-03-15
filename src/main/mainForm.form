@@ -31,6 +31,7 @@
             </constraints>
             <properties>
               <horizontalScrollBarPolicy value="30"/>
+              <minimumSize width="10" height="20"/>
               <name value="Contacts"/>
               <opaque value="true"/>
               <preferredSize width="180" height="200"/>
@@ -42,10 +43,11 @@
                 <constraints/>
                 <properties>
                   <maximumSize width="-1" height="-1"/>
-                  <minimumSize width="20" height="60"/>
+                  <minimumSize width="10" height="20"/>
                   <model/>
                   <selectionBackground color="-13077034"/>
                   <selectionMode value="0"/>
+                  <toolTipText value="Select a contact."/>
                 </properties>
               </component>
             </children>
@@ -102,7 +104,7 @@
                     </constraints>
                     <properties>
                       <labelFor value="15f39"/>
-                      <text value="Test User"/>
+                      <text value="&amp;Test User"/>
                     </properties>
                   </component>
                   <scrollpane id="ff01e" binding="chatTextHist">
@@ -131,7 +133,7 @@
                   </scrollpane>
                 </children>
               </grid>
-              <component id="8b9d1" class="javax.swing.JTextArea" binding="chatText">
+              <component id="1d3c" class="javax.swing.JTextField" binding="chatText">
                 <constraints>
                   <splitpane position="right"/>
                 </constraints>

@@ -3,10 +3,6 @@ package main;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.Document;
-import javax.swing.text.DocumentFilter;
-import javax.swing.text.PlainDocument;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -25,7 +21,7 @@ public class mainForm extends JFrame {
     private JLabel userLabel;
     private JPanel actionPanel;
     private JSplitPane splitPanel;
-    JTextArea chatText;
+    public JTextField chatText;
     private JSplitPane rightPane;
     private JScrollPane chatTextHist;
     JTextArea chatArea;
@@ -50,11 +46,11 @@ public class mainForm extends JFrame {
         fileMenu.add(delUserItem);
         fileMenu.add(quitItem);
 
-        //contactsModel = new DefaultListModel();
-        //for (String name : names)
-        //    contactsModel.addElement(name);     // Adds names from names to the List in the GUI
-        contactsList.setListData(names);
-        //contactsList.setModel(contactsModel);
+        contactsModel = new DefaultListModel();
+        for (String name : names)
+            contactsModel.addElement(name);     // Adds names from names to the List in the GUI
+        //contactsList.setListData(names);
+        contactsList.setModel(contactsModel);
         contactsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         class contactsListener implements ListSelectionListener {
@@ -64,8 +60,8 @@ public class mainForm extends JFrame {
                 if (e.getValueIsAdjusting() == false) {
                     if (contactsList.getSelectedIndex() == -1) {
                     } else {
-                        userLabel.setText(contactsList.getSelectedValue().toString());
                         currentUser = contactsList.getSelectedIndex();
+                        userLabel.setText(names[currentUser].trim());
                         // Sets the userLabel to the currently selected name on the left in GUI.
                     }
                 }
@@ -84,8 +80,9 @@ public class mainForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String newUser =
                         JOptionPane.showInputDialog(getRootPane(), "Add user", "Add new user", JOptionPane.OK_CANCEL_OPTION);
-                names[names.length] = newUser;
-                contactsList.setListData(names);
+                //names[names.length] = newUser;
+                contactsModel.addElement(newUser);
+                //contactsList.setModel(contactsModel);
             }
         });
         delUserItem.addActionListener(new ActionListener() {
@@ -93,7 +90,9 @@ public class mainForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (contactsList.getSelectedIndex() != -1) {
                     contactsModel.remove(contactsList.getSelectedIndex());
-                    contactsList.setSelectedIndex(-1);
+
+                    currentUser--;
+                    contactsList.setSelectedIndex(currentUser);
                 }
             }
         });
@@ -101,20 +100,37 @@ public class mainForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(), "Implementing soon", "Coming soon", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                //callButton.setActionCommand(names[currentUser]);
                 actionCall call = new actionCall(names[currentUser], addrs[currentUser]);
                 call.actionPerformed(e);
             }
         });
-        //callButton.addActionListener(new actionCall(names[currentUser], addrs[currentUser]));
-        //chatListener listener = new chatListener();
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //ClassLoader cl = Thread.currentThread().getContextClassLoader();
+
+                Main.client.processMessage(chatText.getText());
+            }
+        });
 
         this.pack();
         this.setLocationByPlatform(true);
         this.setVisible(true);
-        while (true) {
-            chatArea.append(chatListener.newChat);
-            chatListener.newChat = "";
-        }
+        // while (true) {
+
+        //sendButton.setActionCommand(chatText.getText().trim());
+        //chatArea.append(chatListener.newChat);
+        //chatListener.newChat = "";
+        //}
+    }
+
+    public void clearChatText() {
+        chatText.setText("");
+    }
+
+    public void addChat(String chat) {
+        chatArea.append("\n" + chat);
     }
 }
 

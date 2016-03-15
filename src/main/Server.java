@@ -2,16 +2,18 @@ package main;/*
  *           Name: Matthew Macke
  */
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 public class Server {
     public static int numOfConnections = 0; // Number of clients connected to server
     private ServerSocket ss; // ServerSocket used for new connections
-    private mainForm theForm;
+
     // Link sockets with DataOutPutStreams
     private Hashtable outputStreams = new Hashtable();
 
@@ -21,8 +23,8 @@ public class Server {
      * @param port - The port the server is using
      * @throws IOException - Try to avoid this
      */
-    public Server(int port, mainForm content) throws IOException {
-        theForm = content;
+    public Server(int port) throws IOException {
+
         listen(port);
     }
 
@@ -66,7 +68,6 @@ public class Server {
 
     // Send a message to all clients
     void sendToAll(String message) {
-        chatListener linker = new chatListener();
         // Synchronize this in case RemoveConnection() is called
         synchronized (outputStreams) {
             // For every client connected
@@ -76,8 +77,7 @@ public class Server {
                 // Send a message
                 try {
                     dout.writeUTF(message);
-                    theForm.chatArea.append(message);
-                    //linker.newChat = message;
+                    Main.contentForm.addChat(message);
 
                 } catch (IOException ie) {
                     System.out.println(ie);
@@ -137,6 +137,6 @@ public class Server {
         }
 
         // Create a Server object
-        new Server(port, new mainForm());
+        new Server(port);
     }
 }
