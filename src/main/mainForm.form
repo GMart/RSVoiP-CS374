@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="4" left="4" bottom="4" right="4"/>
     <constraints>
-      <xy x="20" y="20" width="721" height="443"/>
+      <xy x="20" y="20" width="757" height="443"/>
     </constraints>
     <properties/>
     <clientProperties>
@@ -25,7 +25,7 @@
         </properties>
         <border type="none"/>
         <children>
-          <scrollpane id="15f39" binding="ContactsScroll">
+          <scrollpane id="15f39" binding="contactsScroll">
             <constraints>
               <splitpane position="left"/>
             </constraints>
@@ -41,61 +41,107 @@
               <component id="2404d" class="javax.swing.JList" binding="contactsList">
                 <constraints/>
                 <properties>
+                  <maximumSize width="-1" height="-1"/>
                   <minimumSize width="20" height="60"/>
-                  <model>
-                    <item value="test User"/>
-                  </model>
+                  <model/>
                   <selectionBackground color="-13077034"/>
                   <selectionMode value="0"/>
                 </properties>
               </component>
             </children>
           </scrollpane>
-          <grid id="15950" binding="actionPanel" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="2">
-            <margin top="2" left="2" bottom="2" right="2"/>
+          <splitpane id="39c7b" binding="rightPane">
             <constraints>
               <splitpane position="right"/>
             </constraints>
-            <properties/>
+            <properties>
+              <dividerSize value="8"/>
+              <orientation value="0"/>
+              <resizeWeight value="0.75"/>
+            </properties>
             <border type="none"/>
             <children>
-              <vspacer id="19918">
+              <grid id="15950" binding="actionPanel" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="2">
+                <margin top="2" left="2" bottom="2" right="2"/>
                 <constraints>
-                  <grid row="0" column="1" row-span="3" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <splitpane position="left"/>
                 </constraints>
-              </vspacer>
-              <component id="89abc" class="javax.swing.JButton" binding="sendFileButton" default-binding="true">
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <vspacer id="19918">
+                    <constraints>
+                      <grid row="0" column="1" row-span="4" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                  </vspacer>
+                  <component id="89abc" class="javax.swing.JButton" binding="sendButton" default-binding="true">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                        <minimum-size width="24" height="10"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <text value="&amp;Send"/>
+                    </properties>
+                  </component>
+                  <component id="cc0c0" class="javax.swing.JButton" binding="callButton" default-binding="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                        <minimum-size width="24" height="10"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <text value="&amp;Call"/>
+                    </properties>
+                  </component>
+                  <component id="925a4" class="javax.swing.JLabel" binding="userLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                        <minimum-size width="20" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <labelFor value="15f39"/>
+                      <text value="Test User"/>
+                    </properties>
+                  </component>
+                  <scrollpane id="ff01e" binding="chatTextHist">
+                    <constraints>
+                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <horizontalScrollBarPolicy value="31"/>
+                      <inheritsPopupMenu value="true"/>
+                    </properties>
+                    <border type="none"/>
+                    <children>
+                      <component id="137b7" class="javax.swing.JTextArea" binding="chatArea">
+                        <constraints/>
+                        <properties>
+                          <columns value="1"/>
+                          <editable value="false"/>
+                          <inheritsPopupMenu value="true"/>
+                          <lineWrap value="true"/>
+                          <name value="chatArea"/>
+                          <text value="chat"/>
+                          <wrapStyleWord value="true"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </scrollpane>
+                </children>
+              </grid>
+              <component id="8b9d1" class="javax.swing.JTextArea" binding="chatText">
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
-                    <minimum-size width="24" height="10"/>
-                  </grid>
+                  <splitpane position="right"/>
                 </constraints>
                 <properties>
-                  <text value="&amp;Send file"/>
-                </properties>
-              </component>
-              <component id="cc0c0" class="javax.swing.JButton" binding="callButton" default-binding="true">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
-                    <minimum-size width="24" height="10"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <text value="&amp;Call"/>
-                </properties>
-              </component>
-              <component id="925a4" class="javax.swing.JLabel" binding="userLabel">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
-                    <minimum-size width="20" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <text value="Test User"/>
+                  <font size="14"/>
+                  <text value="Enter chat here"/>
                 </properties>
               </component>
             </children>
-          </grid>
+          </splitpane>
         </children>
       </splitpane>
     </children>
