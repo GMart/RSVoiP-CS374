@@ -5,8 +5,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * Created by Garrett on 2/11/2016.
@@ -21,10 +19,10 @@ public class mainForm extends JFrame {
     private JLabel userLabel;
     private JPanel actionPanel;
     private JSplitPane splitPanel;
-    public JTextField chatText;
+    public JTextField chatText;     // Where you type in chat
     private JSplitPane rightPane;
     private JScrollPane chatTextHist;
-    JTextArea chatArea;
+    JTextArea chatArea;             // Where the chat appears
     int currentUser = 0;
 
     public mainForm() {
@@ -105,26 +103,25 @@ public class mainForm extends JFrame {
                 call.actionPerformed(e);
             }
         });
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //ClassLoader cl = Thread.currentThread().getContextClassLoader();
-
-                Main.client.processMessage(chatText.getText());
-            }
-        });
+        sendButton.addActionListener((new chatListener()));
+        chatText.addActionListener((new chatListener()));
 
         this.pack();
         this.setLocationByPlatform(true);
         this.setVisible(true);
         // while (true) {
 
-        //sendButton.setActionCommand(chatText.getText().trim());
-        //chatArea.append(chatListener.newChat);
         //chatListener.newChat = "";
         //}
     }
 
+    class chatListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Main.client.processMessage(chatText.getText());
+        }
+    }
     public void clearChatText() {
         chatText.setText("");
     }
@@ -134,15 +131,3 @@ public class mainForm extends JFrame {
     }
 }
 
-class chatListener implements PropertyChangeListener {
-    static String newChat;
-
-    @Override
-    public void propertyChange(PropertyChangeEvent e) {
-        if (e.getPropertyName() == "text")
-            newChat = e.getNewValue().toString();
-
-        //newChat = "";
-
-    }
-}

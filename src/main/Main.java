@@ -3,7 +3,6 @@ package main;
  * Created by Garrett on 2/11/2016.
  */
 
-//import java.awt.event.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -33,7 +32,7 @@ public class Main {
                 }
             }
         }
-        //ServerThread servert;
+
         System.out.println("Test");
         //RtspDecoder rtspDecoder = new RtspDecoder();
         //RtspEncoder rtspEncoder = new RtspEncoder();
@@ -45,7 +44,7 @@ public class Main {
         synchronized (client) {
             contentForm = new main.mainForm();
         }
-
+        server.sendToAll("Hello");
         //socket = new Socket("localhost", port);
 
         System.out.println("GUI set up!");
@@ -101,7 +100,7 @@ class clientUIThread implements Runnable, ActionListener {
             dout = new DataOutputStream(socket.getOutputStream());
 
             // Start a background thread for receiving messages
-            //new Thread(this).start();
+            new Thread(this).start();
         } catch (IOException ie) {
             System.out.println(ie);
         }
@@ -114,10 +113,13 @@ class clientUIThread implements Runnable, ActionListener {
     // Gets called when the user types something
     protected void processMessage(String message) {
         try {
-            // Send it to the server
-            dout.writeUTF(message);
-            // Clear out text input field
-            Main.contentForm.clearChatText();
+            if (message != "") {
+                // Send it to the server
+                dout.writeUTF(message);
+                // Clear out text input field
+                Main.contentForm.clearChatText();
+            }
+
         } catch (IOException ie) {
             System.out.println(ie);
         }

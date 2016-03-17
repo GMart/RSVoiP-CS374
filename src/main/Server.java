@@ -77,7 +77,6 @@ public class Server {
                 // Send a message
                 try {
                     dout.writeUTF(message);
-                    Main.contentForm.addChat(message);
 
                 } catch (IOException ie) {
                     System.out.println(ie);

@@ -6,18 +6,14 @@ package main;
  *           Date: 3/25/2015
  */
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.JButton;
 
 
 @SuppressWarnings("serial")
@@ -33,7 +29,7 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
 
     private JButton btnSubmitText;
     private JTextArea chat = theForm.chatArea;
-    private JTextArea chatInput = theForm.chatText;
+    private JTextField chatInput;
 
     /**
      * Launch the application.
@@ -64,8 +60,8 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
 
 
         // Create the ClientUI
-        ClientUI frame = new ClientUI(host, port, new mainForm());
-        frame.setVisible(true);
+        //ClientUI frame = new ClientUI(host, port, new mainForm());
+        //frame.setVisible(true);
     }
 
     /**
@@ -95,7 +91,7 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
 
         //chatInput = new JTextArea();
         chatInput.setBounds(6, 404, 432, 68);
-        contentPane.add(chatInput);
+        //contentPane.add(chatInput);
 
         // Connect to the server
         try {
@@ -125,7 +121,7 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
             // Send it to the server
             dout.writeUTF(message);
             // Clear out text input field
-            theForm.chatText.setText("");
+            //theForm.chatText.setText("");
         } catch (IOException ie) {
             System.out.println(ie);
         }
@@ -133,8 +129,7 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
 
     // Display messages from others
     public void run() {
-        chatListener linker = new chatListener();
-        //theForm.chatArea.addPropertyChangeListener(linker);
+
         try {
             // Receive messages as long as it exists
             while (true) {
@@ -142,7 +137,7 @@ public class ClientUI extends JFrame implements Runnable, ActionListener {
                 String message = din.readUTF();
                 // Print it to the text window
 
-                theForm.chatArea.append(message + "\n");
+
             }
         } catch (IOException ie) {
             //System.out.println(ie);
