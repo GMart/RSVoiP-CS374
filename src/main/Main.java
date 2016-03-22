@@ -1,8 +1,17 @@
 package main;
+
+/*
+ Copyright (c) 2016.
+ By Garrett Martin (GMart on Github),
+    Patrick Gephart (ManualSearch),
+  & Matt Macke (BanishedAngel)
+ Class: main.Main
+ Last modified: 3/22/16 10:45 AM
+ */
+
 /**
  * Created by Garrett on 2/11/2016.
  */
-
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -10,22 +19,23 @@ import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 
 public class Main {
     public static mainForm contentForm;
-    public static clientUIThread client;
+    static clientUIThread client;
     public static Server server;
     static int port = 8080;
 
     public static void main(String[] args) throws IOException {
-        //Socket socket;
+
         class serverThread implements Runnable {
             @Override
             public synchronized void run() {
                 try {
                     server = new Server(port);
-
+                    wait(622);
                     server.sendToAll("Hello");
                 } catch (Exception ex) {
                     System.out.println("Error in server!");
@@ -33,25 +43,27 @@ public class Main {
             }
         }
 
-        System.out.println("Test");
         //RtspDecoder rtspDecoder = new RtspDecoder();
         //RtspEncoder rtspEncoder = new RtspEncoder();
-
+        // Start up server and client
         (new Thread(new serverThread())).start();
-        //ServerThread sThread = new ServerThread(server, (new Socket("localhost", port)));
-        //servert = new ServerThread(server, (new Socket("localhost", port)));
-        client = new clientUIThread();
+
+        client = new clientUIThread("localhost");
+
         synchronized (client) {
-            contentForm = new main.mainForm();
+            javax.swing.SwingUtilities.invokeLater(() -> contentForm = new mainForm());
         }
-        server.sendToAll("Hello");
         //socket = new Socket("localhost", port);
 
         System.out.println("GUI set up!");
 
-        // Start up server and client
 
-        //SwingUtilities.invokeLater(new serverThread());
+    }
+
+    public void changeConnection(String address, int portNum) {
+        port = portNum;
+        client.getClass();
+        client = new clientUIThread(address);
 
     }
 
@@ -70,11 +82,10 @@ class actionCall implements ActionListener {
 
     /**
      * @param user The username of the person currently selected
-     * @param addr The IP address of the person
      */
-    public actionCall(String user, String addr) {
-        name = user.trim();
-        String address = addr;
+    public actionCall(User user) {
+        name = user.toString();
+        InetAddress address = user.address;
     }
 
     @Override
@@ -89,20 +100,22 @@ class clientUIThread implements Runnable, ActionListener {
     private DataInputStream din;
     private Socket socket;
 
-    public clientUIThread() {
+    public clientUIThread(String address) {
 
-        try {
-            // Initiate the connection
-            socket = new Socket("localhost", Main.port);
+        try {       // Initiate the connection
+            InetAddress IPAddr = InetAddress.getByName(address.trim());
 
-            // Gram the streams
+            socket = new Socket(IPAddr, Main.port);
+
+            // Grab* the streams
             din = new DataInputStream(socket.getInputStream());
             dout = new DataOutputStream(socket.getOutputStream());
 
             // Start a background thread for receiving messages
-            new Thread(this).start();
-        } catch (IOException ie) {
-            System.out.println(ie);
+            Thread runningThread = new Thread(this);
+            runningThread.start();  // Separated in case we need to shutdown thread in the future
+        } catch (IOException ie) {  // This will catch if the address is invalid
+            System.out.println("Unusable IP address!" + ie);
         }
     }
 
@@ -113,15 +126,17 @@ class clientUIThread implements Runnable, ActionListener {
     // Gets called when the user types something
     protected void processMessage(String message) {
         try {
-            if (message != "") {
-                // Send it to the server
-                dout.writeUTF(message);
-                // Clear out text input field
-                Main.contentForm.clearChatText();
-            }
+            if (message.trim().isEmpty())
+                return;         // Don't send nothing
+
+            // Send it to the server
+            dout.writeUTF(message);
+            // Clear out text input field
+            Main.contentForm.clearChatText();
+
 
         } catch (IOException ie) {
-            System.out.println(ie);
+            ie.printStackTrace();
         }
     }
 

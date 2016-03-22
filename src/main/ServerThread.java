@@ -1,5 +1,14 @@
 package main;
 /*
+ Copyright (c) 2016.
+ By Garrett Martin (GMart on Github),
+    Patrick Gephart (ManualSearch),
+  & Matt Macke (BanishedAngel)
+ Class: main.ServerThread
+ Last modified: 3/22/16 10:42 AM
+ */
+
+/*          Original:
  *           Name: Matthew Macke
  * Project Number: 2
  *         Course: CS350
