@@ -5,7 +5,7 @@ package main;
     Patrick Gephart (ManualSearch),
   & Matt Macke (BanishedAngel)
  Class: main.Server
- Last modified: 3/22/16 10:42 AM
+ Last modified: 3/27/16 1:15 AM
  */
 
 /*
@@ -119,7 +119,7 @@ public class Server {
     }
 
     /**
-     * Main method
+     * Main method - Not run
      *
      * @param args
      * @throws Exception

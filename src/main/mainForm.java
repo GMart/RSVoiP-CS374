@@ -6,7 +6,7 @@ package main;
     Patrick Gephart (ManualSearch),
   & Matt Macke (BanishedAngel)
  Class: main.User
- Last modified: 3/22/16 10:42 AM
+ Last modified: 3/27/16 1:20 AM
  */
 
 import javax.swing.*;
@@ -18,6 +18,7 @@ import java.awt.event.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import static main.Main.Username;
 
 
 /**
@@ -70,9 +71,10 @@ public class mainForm extends JFrame {
         Font standardFont = new Font("Segoe", Font.PLAIN, 15);
         Font grayFont = new Font("Segoe", Font.ITALIC, 12);
 
-        this.setTitle("RSVoiP messaging program - v0.1");
+        this.setTitle("RSVoiP messaging program - v0.2");
         this.setContentPane(rootPanel);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setTitle("RSVoiP messaging program - " + Username);
 
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
@@ -113,6 +115,9 @@ public class mainForm extends JFrame {
                         currentUser = contactsList.getSelectedIndex();  // Get that user index
                         userLabel.setText(users.get(currentUser).toString());
                         // Sets the userLabel to the currently selected name on the left in GUI.
+                        //TODO: Make changing the user work correctly - tear down old connection and make new one
+                        //Main.changeConnection(users.get(currentUser).address.toString().substring(1), users.get(currentUser).userID);
+                        setTitle("RSVoiP messaging program - " + users.get(currentUser).toString());
                     }
                 }
             }
@@ -134,7 +139,7 @@ public class mainForm extends JFrame {
                                     "Add user",
                                     "Add new user",
                                     JOptionPane.QUESTION_MESSAGE);
-                    String newAddrString = "555.555.555.555";
+                    String newAddrString = "127.0.0.01";
                     String newUserID = "";
                     while (newUserID.isEmpty()) {
                         newUserID =
@@ -143,12 +148,13 @@ public class mainForm extends JFrame {
                                         "Enter User ID",
                                         JOptionPane.QUESTION_MESSAGE);
                     }
-                    users.ensureCapacity(users.size() + 2);
+                    users.ensureCapacity(users.size() + 1);
                     users.add(new User(newUser, InetAddress.getByName(newAddrString), Integer.parseInt(newUserID)));
                     contactsList.setListData(users.toArray());
                 } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
                 } catch (UnknownHostException e1) {
-                    e1.printStackTrace();
+                    JOptionPane.showMessageDialog(getContentPane(), "Error: Invalid IP address. Cancelling add user", "Error!", JOptionPane.ERROR_MESSAGE);
                 }
 
 
@@ -271,6 +277,10 @@ public class mainForm extends JFrame {
 
     public void clearChatText() {
         chatText.setText("");
+    }
+
+    static void setUserName(String user) {
+        Username = user;
     }
 
     public void addChat(String chat) {
