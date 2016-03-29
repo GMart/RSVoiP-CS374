@@ -14,6 +14,8 @@ package main;
  */
 
 import javafx.scene.media.AudioClip;
+import net.sourceforge.peers.media.MediaMode;
+import net.sourceforge.peers.sip.syntaxencoding.SipURI;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -22,6 +24,8 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
+
 
 public class Main {
     static mainForm contentForm;
@@ -53,7 +57,11 @@ public class Main {
         client = new clientUIThread("localhost");
 
         synchronized (client) {
-            SwingUtilities.invokeLater(() -> contentForm = new mainForm());
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override public void run() {
+                    contentForm = new mainForm();
+                }
+            });
         }
 
         System.out.println("GUI set up!");
@@ -155,8 +163,8 @@ class actionCall implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         JOptionPane.showMessageDialog(main.mainForm.getFrames()[0], "Eventually will call: " + name);
+
     }
 }
 
@@ -221,4 +229,56 @@ class clientUIThread implements Runnable, ActionListener {
             System.out.println("Error in client!");
         }
     }
+}
+class CustomConfig implements net.sourceforge.peers.Config {
+
+    private InetAddress publicIpAddress;
+
+    @Override
+    public InetAddress getLocalInetAddress() {
+        InetAddress inetAddress;
+        try {
+            // if you have only one active network interface, getLocalHost()
+            // should be enough
+            inetAddress = InetAddress.getLocalHost();
+            // if you have several network interfaces like I do,
+            // select the right one after running ipconfig or ifconfig
+            //inetAddress = InetAddress.getByName("192.168.1.10");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return inetAddress;
+    }
+
+    @Override
+    public InetAddress getPublicInetAddress() { return publicIpAddress; }
+    @Override public String getUserPart() { return "Garrett"; }
+    @Override public String getDomain() { return "students.ipfw.edu"; }
+    @Override public String getPassword() { return "1234"; }
+    @Override
+    public MediaMode getMediaMode() { return MediaMode.captureAndPlayback; }
+
+    @Override
+    public void setPublicInetAddress(InetAddress inetAddress) {
+        publicIpAddress = inetAddress;
+    }
+
+    @Override public SipURI getOutboundProxy() { return null; }
+    @Override public int getSipPort() { return 0; }
+    @Override public boolean isMediaDebug() { return false; }
+    @Override public String getMediaFile() { return null; }
+    @Override public int getRtpPort() { return 0; }
+    @Override public void setLocalInetAddress(InetAddress inetAddress) { }
+    @Override public void setUserPart(String userPart) { }
+    @Override public void setDomain(String domain) { }
+    @Override public void setPassword(String password) { }
+    @Override public void setOutboundProxy(SipURI outboundProxy) { }
+    @Override public void setSipPort(int sipPort) { }
+    @Override public void setMediaMode(MediaMode mediaMode) { }
+    @Override public void setMediaDebug(boolean mediaDebug) { }
+    @Override public void setMediaFile(String mediaFile) { }
+    @Override public void setRtpPort(int rtpPort) { }
+    @Override public void save() { }
+
 }
