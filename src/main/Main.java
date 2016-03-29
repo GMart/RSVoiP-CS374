@@ -6,27 +6,29 @@ package main;
     Patrick Gephart (ManualSearch),
   & Matt Macke (BanishedAngel)
  Class: main.Main
- Last modified: 3/22/16 10:45 AM
+ Last modified: 3/27/16 1:16 AM
  */
 
 /**
  * Created by Garrett on 2/11/2016.
  */
 
+import javafx.scene.media.AudioClip;
+
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
 public class Main {
-    public static mainForm contentForm;
+    static mainForm contentForm;
     static clientUIThread client;
-    public static Server server;
+    private static Server server;
     static int port = 8080;
+    static String Username; // User's own Name
 
     public static void main(String[] args) throws IOException {
 
@@ -35,13 +37,13 @@ public class Main {
             public synchronized void run() {
                 try {
                     server = new Server(port);
-                    wait(622);
+                    wait(1000);
                     server.sendToAll("Hello");
                 } catch (Exception ex) {
                     System.out.println("Error in server!");
                 }
             }
-        }
+        }   // Different from ServerThread (That has one for each connection)
 
         //RtspDecoder rtspDecoder = new RtspDecoder();
         //RtspEncoder rtspEncoder = new RtspEncoder();
@@ -51,20 +53,83 @@ public class Main {
         client = new clientUIThread("localhost");
 
         synchronized (client) {
-            javax.swing.SwingUtilities.invokeLater(() -> contentForm = new mainForm());
+            SwingUtilities.invokeLater(() -> contentForm = new mainForm());
         }
-        //socket = new Socket("localhost", port);
 
         System.out.println("GUI set up!");
+
+        //Socket socket = new Socket("null", port);
+        //sendAudioThread(socket);         // Testing audio sending and receiving
+        //TODO: Currently this doesn't work because there is nowhere to send the audio to - the socket can't connect
+    }
+
+
+    public static void changeConnection(String address, int portNum) {
+        port = portNum;
+
+        //client = new clientUIThread(address);
+        //TODO: Don't know why this breaks everything, should look into it!
+
+    }
+
+    static void startAudio(AudioClip audioClip) {
+        AudioFormat format;
+        TargetDataLine targetDataLine;
+        format = new AudioFormat(16000, 16, 1, true, false);
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+
+        try {
+            targetDataLine = AudioSystem.getTargetDataLine(format);
+            SourceDataLine soundData = AudioSystem.getSourceDataLine(format);
+            soundData.open(format);
+            targetDataLine.open(format);
+
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
+        if (!audioClip.isPlaying())
+            audioClip.play(0.9);
 
 
     }
 
-    public void changeConnection(String address, int portNum) {
-        port = portNum;
-        client.getClass();
-        client = new clientUIThread(address);
+    /**
+     * Sends audio from the first mic to the socket, buffered.
+     *
+     * @param socket Socket to send audio through.
+     */
+    static void sendAudioThread(Socket socket) {
+        Runnable runnable = new Runnable() {
+            public void run() {
+                AudioFormat audioFormat = new AudioFormat(16000, 16, 1, true, false);
+                try {
+                    DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
+                    TargetDataLine sendLine = (TargetDataLine) AudioSystem.getLine(info);
+                    sendLine.open(audioFormat);
+                    sendLine.start();
+                    int bufferSize = (int) audioFormat.getSampleRate() * audioFormat.getFrameSize() * 2;
+                    byte buffer[] = new byte[bufferSize];
+                    BufferedOutputStream bufferedStream = new BufferedOutputStream(socket.getOutputStream(), bufferSize);
+                    while (sendLine.isRunning()) {
+                        int count = sendLine.read(buffer, 0, buffer.length);
+                        if (count > 0 && (sendLine.getLevel() > 0.01)) { // Arbitrary volume level to reduce bandwidth
+                            bufferedStream.write(buffer, 0, count);
+                            InputStream input = new ByteArrayInputStream(buffer);
+                            final AudioInputStream ais = new AudioInputStream(input, audioFormat,
+                                    buffer.length / audioFormat.getFrameSize());
 
+                        }
+                    }
+                    bufferedStream.close();
+
+                } catch (LineUnavailableException | IOException e) {
+                    System.out.println("Error in capturing audio with connection " + socket.toString());
+                    //e.printStackTrace();
+                }
+            }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
     public void sendPressed(String message) {
@@ -83,15 +148,15 @@ class actionCall implements ActionListener {
     /**
      * @param user The username of the person currently selected
      */
-    public actionCall(User user) {
-        name = user.toString();
+    actionCall(User user) {
+        name = user.toString();         // Grab the name of the user
         InetAddress address = user.address;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        JOptionPane.showMessageDialog(main.mainForm.getFrames()[0], "Will call: " + name);
+        JOptionPane.showMessageDialog(main.mainForm.getFrames()[0], "Eventually will call: " + name);
     }
 }
 
@@ -100,7 +165,7 @@ class clientUIThread implements Runnable, ActionListener {
     private DataInputStream din;
     private Socket socket;
 
-    public clientUIThread(String address) {
+    clientUIThread(String address) {
 
         try {       // Initiate the connection
             InetAddress IPAddr = InetAddress.getByName(address.trim());
@@ -115,7 +180,7 @@ class clientUIThread implements Runnable, ActionListener {
             Thread runningThread = new Thread(this);
             runningThread.start();  // Separated in case we need to shutdown thread in the future
         } catch (IOException ie) {  // This will catch if the address is invalid
-            System.out.println("Unusable IP address!" + ie);
+            System.out.println("Unusable IP address!\n" + ie);
         }
     }
 
@@ -124,7 +189,7 @@ class clientUIThread implements Runnable, ActionListener {
     }
 
     // Gets called when the user types something
-    protected void processMessage(String message) {
+    void processMessage(String message) {
         try {
             if (message.trim().isEmpty())
                 return;         // Don't send nothing
@@ -143,21 +208,15 @@ class clientUIThread implements Runnable, ActionListener {
     @Override
     public void run() {
         try {
-            //clientUI.setVisible(true);
-            try {
-                // Receive messages as long as it exists
-                while (true) {
-                    // Get the message
-                    String message = din.readUTF();
-                    // Print it to the text window
-
-                    Main.contentForm.addChat(message);
-                }
-            } catch (IOException ie) {
-                //System.out.println(ie);
+            // Receive messages as long as it exists
+            while (true) {
+                // Get the message
+                String message = din.readUTF();
+                // Print it to the text window
+                Main.contentForm.addChat(message);
             }
-
-
+        } catch (IOException ie) {
+            //System.out.println(ie);
         } catch (Exception ex) {
             System.out.println("Error in client!");
         }

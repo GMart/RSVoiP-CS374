@@ -5,7 +5,7 @@ package main;
     Patrick Gephart (ManualSearch),
   & Matt Macke (BanishedAngel)
  Class: main.ServerThread
- Last modified: 3/22/16 10:42 AM
+ Last modified: 3/27/16 1:15 AM
  */
 
 /*          Original:
@@ -41,10 +41,15 @@ public class ServerThread extends Thread {
         if (name == null) {
             this.name = "Anonymous";
         }
+        mainForm.setUserName(this.name);
 
         // Start the thread
         start();
 
+    }
+
+    public String getUserName() {
+        return this.name;
     }
 
     /**
