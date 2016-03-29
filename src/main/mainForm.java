@@ -166,7 +166,9 @@ public class mainForm extends JFrame {
                 if (contactsList.getSelectedIndex() != -1) {
                     //contactsModel.remove(contactsList.getSelectedIndex());
                     users.remove(contactsList.getSelectedValue());
-                    currentUser = (currentUser != 0) ? currentUser-- : currentUser++;
+                    if (currentUser != 0)
+                        currentUser--;
+                    else currentUser++;
                     //Change current user
                     contactsList.setSelectedIndex(currentUser);
                     contactsList.setListData(users.toArray()); //Finally send the user data to the list
