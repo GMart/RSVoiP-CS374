@@ -136,8 +136,7 @@ public class Main {
                         if (count > 0 && (sendLine.getLevel() > 0.01)) { // Arbitrary volume level to reduce bandwidth
                             bufferedStream.write(buffer, 0, count);
                             InputStream input = new ByteArrayInputStream(buffer);
-                            final AudioInputStream ais = new AudioInputStream(input, audioFormat,
-                                                                              buffer.length / audioFormat.getFrameSize());
+                            final AudioInputStream ais = new AudioInputStream(input, audioFormat, buffer.length / audioFormat.getFrameSize());
 
                         }
                     }
