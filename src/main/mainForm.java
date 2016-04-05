@@ -139,17 +139,17 @@ public class mainForm extends JFrame {
                 try {
                     String newUser =
                             JOptionPane.showInputDialog(getRootPane(),
-                                                        "Add user",
-                                                        "Add new user",
-                                                        JOptionPane.QUESTION_MESSAGE);
+                                    "Add user",
+                                    "Add new user",
+                                    JOptionPane.QUESTION_MESSAGE);
                     String newAddrString = "127.0.0.01";
                     String newUserID = "";
                     while (newUserID.isEmpty()) {
                         newUserID =
                                 JOptionPane.showInputDialog(getRootPane(),
-                                                            "What is " + newUser + "'s ID?",
-                                                            "Enter User ID",
-                                                            JOptionPane.QUESTION_MESSAGE);
+                                        "What is " + newUser + "'s ID?",
+                                        "Enter User ID",
+                                        JOptionPane.QUESTION_MESSAGE);
                     }
                     users.ensureCapacity(users.size() + 1);
                     users.add(new User(newUser, InetAddress.getByName(newAddrString), Integer.parseInt(newUserID)));
@@ -157,7 +157,8 @@ public class mainForm extends JFrame {
                 } catch (NumberFormatException nfe) {
                     nfe.printStackTrace();
                 } catch (UnknownHostException e1) {
-                    JOptionPane.showMessageDialog(getContentPane(), "Error: Invalid IP address. Cancelling add user", "Error!", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(getContentPane(), "Error: Invalid IP address. Cancelling add user",
+                            "Error!", JOptionPane.ERROR_MESSAGE);
                 }
 
             }
@@ -249,7 +250,7 @@ public class mainForm extends JFrame {
         private void maybeShowPopup(MouseEvent e) {
             if (e.isPopupTrigger()) {
                 popup.show(e.getComponent(),
-                           e.getX(), e.getY());
+                        e.getX(), e.getY());
             }
         }
     }
@@ -262,13 +263,12 @@ public class mainForm extends JFrame {
             try {
                 if (chatArea.getSelectedText() == null) {
                     chatArea.setText(chatArea.getText(chatArea.getText().lastIndexOf('\n', chatLength - 2) + 1,
-                                                      chatLength - chatArea.getText().lastIndexOf('\n',
-                                                                                                  chatLength - 2)).trim());
+                            chatLength - chatArea.getText().lastIndexOf('\n',
+                                    chatLength - 2)).trim());
                     chatArea.append("\n");
                 } else
                     chatArea.setText(chatArea.getText(chatArea.getSelectionStart(), chatArea.getSelectionEnd()));
             } catch (BadLocationException e1) {
-                e1.printStackTrace();
                 System.out.println(e1);
                 chatArea.setText("");          // If setting fails, set to nothing
             }
