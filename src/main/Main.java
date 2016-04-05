@@ -20,8 +20,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.*;
 
 public class Main {
     static mainForm contentForm;
@@ -64,10 +63,36 @@ public class Main {
 
         System.out.println("GUI set up!");
 
+        sendIPToServer();
+
         //Socket socket = new Socket("null", port);
         //sendAudioThread(socket);         // Testing audio sending and receiving
         //TODO: Currently this doesn't work because there is nowhere to send the audio to - the socket can't connect
     }
+
+    /**
+     * This method will connect the Buddy Server and update the IP address for the user.
+     *
+     * TO DO: Fix formatting for string and add prompt user to enter their IP address.
+     * Alternatively: Have java connect to a website to get public IP. You can't get
+     * public IP from java directly.
+     */
+    public static void sendIPToServer() throws IOException {
+        Socket socket = null;
+        OutputStreamWriter out;
+        String str = "1/195/111.111.111.111";
+        try {
+            socket = new Socket("68.39.45.194", 1199);
+            out = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
+            out.write(str, 0, str.length());
+        } catch (IOException e) {
+            System.err.print(e);
+        } finally {
+            socket.close();
+        }
+
+    }
+
 
     /**
      * @param address The new IP address to send to.
