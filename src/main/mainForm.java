@@ -1,12 +1,12 @@
 package main;
 
 /*
- Copyright (c) 2016.
- By Garrett Martin (GMart on Github),
-    Patrick Gephart (ManualSearch),
-  & Matt Macke (BanishedAngel)
- Class: main.User
- Last modified: 3/27/16 1:20 AM
+ * Copyright (c) 2016.
+ * By Garrett Martin (GMart on Github),
+ *    Patrick Gephart (ManualSearch),
+ *  & Matt Macke (BanishedAngel)
+ * Class: main.User
+ * Last modified: 4/5/16 12:20 AM
  */
 
 import javax.swing.*;
@@ -18,8 +18,8 @@ import java.awt.event.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import static main.Main.Username;
 
+import static main.Main.Username;
 
 /**
  * Created by Garrett on 2/11/2016.
@@ -57,24 +57,25 @@ public class mainForm extends JFrame {
     JTextArea chatArea;             // Where the chat appears
     int currentUser = 0;
     boolean typingMessage = false;
+    boolean inCallNow = false;
     ArrayList<User> users = new ArrayList<>(6);
 
     public mainForm() {
         try {
-            users.add(new User("Garrett Martin", InetAddress.getByName("127.0.0.1"), 001));
-            users.add(new User("Matt", InetAddress.getByName("149.0.0.1"), 002));
-            users.add(new User("Patrick", InetAddress.getByName("217.0.0.1"), 003));
+            users.add(new User("Garrett Martin", InetAddress.getByName("127.0.0.1"), 101));
+            users.add(new User("Matt", InetAddress.getByName("149.0.0.1"), 102));
+            users.add(new User("Patrick", InetAddress.getByName("217.0.0.1"), 103));
         } catch (UnknownHostException e) {
         }
-        String names[] = {"Test User", "Garrett", "Matt"};
-        String addrs[] = {"127.0.0.1", "12.23.34.45", "192.168.1.2"};
+        //// SETTING UP GUI ELEMENTS  ////
+
         Font standardFont = new Font("Segoe", Font.PLAIN, 15);
         Font grayFont = new Font("Segoe", Font.ITALIC, 12);
 
         this.setTitle("RSVoiP messaging program - v0.2");
         this.setContentPane(rootPanel);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("RSVoiP messaging program - " + Username);
+        //this.setTitle("RSVoiP messaging program - " + Username);
 
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
@@ -98,12 +99,14 @@ public class mainForm extends JFrame {
         clearPopup.add(clearItem);
         MouseListener popupListener = new PopupListener(clearPopup);
         chatArea.addMouseListener(popupListener);
-
+        //// DONE SETTING UP GUI    ////
+        //// SETTING UP LISTENERS   ////
         contactsModel = new DefaultListModel();
         contactsList.setListData(users.toArray());
         //contactsList.setModel(contactsModel);
         contactsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         contactsList.setSelectedIndex(0);
+        userLabel.setText(users.get(currentUser).toString());
 
         class contactsListener implements ListSelectionListener {
 
@@ -136,17 +139,17 @@ public class mainForm extends JFrame {
                 try {
                     String newUser =
                             JOptionPane.showInputDialog(getRootPane(),
-                                    "Add user",
-                                    "Add new user",
-                                    JOptionPane.QUESTION_MESSAGE);
+                                                        "Add user",
+                                                        "Add new user",
+                                                        JOptionPane.QUESTION_MESSAGE);
                     String newAddrString = "127.0.0.01";
                     String newUserID = "";
                     while (newUserID.isEmpty()) {
                         newUserID =
                                 JOptionPane.showInputDialog(getRootPane(),
-                                        "What is " + newUser + "'s ID?",
-                                        "Enter User ID",
-                                        JOptionPane.QUESTION_MESSAGE);
+                                                            "What is " + newUser + "'s ID?",
+                                                            "Enter User ID",
+                                                            JOptionPane.QUESTION_MESSAGE);
                     }
                     users.ensureCapacity(users.size() + 1);
                     users.add(new User(newUser, InetAddress.getByName(newAddrString), Integer.parseInt(newUserID)));
@@ -156,7 +159,6 @@ public class mainForm extends JFrame {
                 } catch (UnknownHostException e1) {
                     JOptionPane.showMessageDialog(getContentPane(), "Error: Invalid IP address. Cancelling add user", "Error!", JOptionPane.ERROR_MESSAGE);
                 }
-
 
             }
         });
@@ -180,20 +182,17 @@ public class mainForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(), "Implementing soon", "Coming soon", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                actionCall call = new actionCall(users.get(currentUser));
+                actionCall call = new actionCall(users.get(currentUser), inCallNow);
                 call.actionPerformed(e);
             }
         });
         sendButton.addActionListener((new chatListener())); // Send message
         chatText.addActionListener((new chatListener()));   // Send message when enter pressed
-
+        //// DONE SETTING UP LISTENERS  ////
+        //// FINALIZING GUI             ////
         this.pack();
         this.setLocationByPlatform(true);
         this.setVisible(true);
-        // while (true) {
-
-
-        //}
         chatText.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -250,7 +249,7 @@ public class mainForm extends JFrame {
         private void maybeShowPopup(MouseEvent e) {
             if (e.isPopupTrigger()) {
                 popup.show(e.getComponent(),
-                        e.getX(), e.getY());
+                           e.getX(), e.getY());
             }
         }
     }
@@ -263,8 +262,8 @@ public class mainForm extends JFrame {
             try {
                 if (chatArea.getSelectedText() == null) {
                     chatArea.setText(chatArea.getText(chatArea.getText().lastIndexOf('\n', chatLength - 2) + 1,
-                            chatLength - chatArea.getText().lastIndexOf('\n',
-                                    chatLength - 2)).trim());
+                                                      chatLength - chatArea.getText().lastIndexOf('\n',
+                                                                                                  chatLength - 2)).trim());
                     chatArea.append("\n");
                 } else
                     chatArea.setText(chatArea.getText(chatArea.getSelectionStart(), chatArea.getSelectionEnd()));
@@ -277,6 +276,9 @@ public class mainForm extends JFrame {
         }
     }
 
+    /**
+     * Allows the Chat Client to clear the text box when text is successfully sent
+     */
     public void clearChatText() {
         chatText.setText("");
     }
