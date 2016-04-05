@@ -29,6 +29,7 @@ public class Main {
     static int port = 1200; // Temporary
     static String Username; // User's own Name
     static String serverIP = "HIDDEN--REPLACE";
+    static String userID;
 
     public static void main(String[] args) throws IOException {
 
@@ -65,6 +66,8 @@ public class Main {
 
         sendIPToServer();
 
+        System.out.println("IP sent to server");
+
         //Socket socket = new Socket("null", port);
         //sendAudioThread(socket);         // Testing audio sending and receiving
         //TODO: Currently this doesn't work because there is nowhere to send the audio to - the socket can't connect
@@ -73,18 +76,27 @@ public class Main {
     /**
      * This method will connect the Buddy Server and update the IP address for the user.
      *
-     * TO DO: Fix formatting for string and add prompt user to enter their IP address.
-     * Alternatively: Have java connect to a website to get public IP. You can't get
-     * public IP from java directly.
      */
     public static void sendIPToServer() throws IOException {
         Socket socket = null;
         OutputStreamWriter out;
-        String str = "1/195/111.111.111.111";
+
+        // Get public IP
+        URL whatismyip = new URL("http://checkip.amazonaws.com");
+        BufferedReader in = new BufferedReader(new InputStreamReader(
+                whatismyip.openStream()));
+        String ip = in.readLine();
+
+        // Craft string to send to server
+        String str;
+        userID = JOptionPane.showInputDialog("What is your userID?");
+        str = "1/" + userID + "/" + ip;
+
         try {
             socket = new Socket("68.39.45.194", 1199);
             out = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
             out.write(str, 0, str.length());
+            out.close();
         } catch (IOException e) {
             System.err.print(e);
         } finally {
