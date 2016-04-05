@@ -8,12 +8,7 @@ package main;
  Last modified: 3/22/16 10:42 AM
  */
 
-/*
- *           Name: Matthew Macke
- * Project Number: 2
- *         Course: CS350
- *           Date: 3/25/2015
- */
+
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

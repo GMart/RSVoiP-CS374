@@ -8,9 +8,7 @@ package main;
  Last modified: 3/27/16 1:15 AM
  */
 
-/*
- *           Name: Matthew Macke
- */
+
 
 import javax.swing.*;
 import java.io.DataOutputStream;

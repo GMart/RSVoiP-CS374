@@ -8,12 +8,6 @@ package main;
  Last modified: 3/27/16 1:15 AM
  */
 
-/*          Original:
- *           Name: Matthew Macke
- * Project Number: 2
- *         Course: CS350
- *           Date: 3/25/2015
- */
 
 import javax.swing.*;
 import java.io.DataInputStream;
