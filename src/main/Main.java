@@ -14,6 +14,7 @@ package main;
  */
 
 import javafx.scene.media.AudioClip;
+import jdk.internal.org.objectweb.asm.tree.TryCatchBlockNode;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -82,10 +83,18 @@ public class Main {
         OutputStreamWriter out;
 
         // Get public IP
-        URL whatismyip = new URL("http://checkip.amazonaws.com");
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-                whatismyip.openStream()));
-        String ip = in.readLine();
+        URL whatismyip;
+        BufferedReader in;
+        String ip;
+        try {
+            whatismyip = new URL("http://checkip.amazonaws.com");
+            in = new BufferedReader(new InputStreamReader(
+                    whatismyip.openStream()));
+            ip = in.readLine();
+            in.close();
+        } catch (IOException e){
+            ip = InetAddress.getLocalHost().getHostAddress();
+        }
 
         // Craft string to send to server
         String str;
