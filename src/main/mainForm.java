@@ -182,7 +182,6 @@ public class mainForm extends JFrame {
         callButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(), "Implementing soon", "Coming soon", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 actionCall call = new actionCall(users.get(currentUser), inCallNow);
                 call.actionPerformed(e);
             }

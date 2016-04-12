@@ -29,7 +29,7 @@ public class Main {
     private static Server server;
     static int port = 1200; // Temporary
     static String Username; // User's own Name
-    static String serverIP = "HIDDEN--REPLACE";
+    static String serverIP = "68.39.45.194";
     static String userID;
 
     public static void main(String[] args) throws IOException {
@@ -100,18 +100,20 @@ public class Main {
         String str;
         userID = JOptionPane.showInputDialog("What is your userID?");
         str = "1/" + userID + "/" + ip;
+        String str2 = "5";
 
+        // Update your IP on server
         try {
-            socket = new Socket("68.39.45.194", 1199);
+            socket = new Socket(serverIP, 1199);
             out = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
             out.write(str, 0, str.length());
+            out.write(str2, 0, str2.length());
             out.close();
         } catch (IOException e) {
             System.err.print(e);
         } finally {
             socket.close();
         }
-
     }
 
 
@@ -235,7 +237,7 @@ class actionCall implements ActionListener {    // Fires when "Call" button is p
         if (!endTheCall) {
             //TODO: Initiate the call - Query and set up the correct socket, using test socket for now
             try {
-                audioSendThread = Main.sendAudioThread(new Socket(Main.serverIP, 1199));
+                audioSendThread = Main.sendAudioThread(new Socket(Main.serverIP, 1201));
                 audioSendThread.start();// Start that Thread
             } catch (IOException e1) {
                 e1.printStackTrace();
