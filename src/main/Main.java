@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.Main
- * Last modified: 4/12/16 3:48 PM
+ * Last modified: 4/13/16 3:42 AM
  */
 
 /**
@@ -47,25 +47,25 @@ public class Main {
         //RtspDecoder rtspDecoder = new RtspDecoder(); // In the future use RTP?
         //RtspEncoder rtspEncoder = new RtspEncoder();
         // Start up server and client
-        (new Thread(new serverThread())).start();
+        //(new Thread(new serverThread())).start();
 
-        client = new clientUIThread("localhost");
+        client = new clientUIThread("127.0.0.1");
 
-        synchronized (client) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    contentForm = new mainForm();
-                }
-            });
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                contentForm = new mainForm();
+            }
+        });
+
 
         System.out.println("GUI set up!");
 
         //sendIPToServer();
+        //(new receiveAudioThread(new ServerSocket(1201))).start();
+        //(new sendAudioThread(new Socket("localhost", 1201))).start();
 
-
-        System.out.println("IP sent to server");
+        //System.out.println("IP sent to server");
 
         //Socket socket = new Socket("null", port);
         //sendAudioThread(socket);         // Testing audio sending and receiving
@@ -125,50 +125,6 @@ public class Main {
 
     }
 
-    /**
-     * Play audio - TODO: Modify to receive a socket parameter and play that directly
-     *
-     * @param audioClip Audio to play
-     */
-    static void startPlayingAudio(ServerSocket socket) {
-        AudioFormat format;
-        TargetDataLine targetDataLine;
-        format = new AudioFormat(16000, 16, 1, true, false);
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-        BufferedInputStream bufferedInputStream = null;
-        SourceDataLine soundData = null;
-        try {
-            //targetDataLine = AudioSystem.getTargetDataLine(format);
-            soundData = AudioSystem.getSourceDataLine(format);
-            soundData.open(format);
-            //targetDataLine.open(format);
-            bufferedInputStream = new BufferedInputStream(socket.accept().getInputStream());
-
-        } catch (LineUnavailableException e) {
-            System.out.println("Line unavailable");
-
-        } catch (IOException e) {
-            System.out.println("IO exception!");
-
-        }
-        byte buffer[] = new byte[512];
-        try {
-            while (bufferedInputStream.available() > 0) {
-                int count = bufferedInputStream.read(buffer, 0, 512);
-                if (count > 0) {
-                    soundData.write(buffer, 0, 512);
-                }
-            }
-            bufferedInputStream.close();        // Close the stream when done
-        } catch (IOException e) {
-            System.out.println("Stream problem");
-            e.printStackTrace();
-        } finally {
-            soundData.close();                  // Always close the microphone
-        }
-
-    }
-
     public void sendPressed(String message) {
         client.processMessage(message);
         contentForm.clearChatText();
@@ -191,55 +147,107 @@ class sendAudioThread extends Thread {
         this.socket = socket;
     }
 
-    public synchronized void setRunning(boolean running) { // Lets us control this Thread from another
+    synchronized void setRunning(boolean running) { // Lets us control this Thread from another
         this.running = running;
     }
 
     @Override
     public void run() {
-        AudioFormat audioFormat = new AudioFormat(16000, 16, 1, true, false); //Audio stream format, may tweak
+        AudioFormat audioFormat = new AudioFormat(48000, 16, 1, true, false); //Audio stream format, may tweak
         setRunning(true);
         try {
             socket.setTcpNoDelay(true);
             socket.setTrafficClass(SocketOptions.IP_TOS);
             socket.setPerformancePreferences(1, 5, 2);
-
+            System.out.println("Setting up sending audio!");
 
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
-            TargetDataLine sendLine = (TargetDataLine) AudioSystem.getLine(info);
+            TargetDataLine sendLine = AudioSystem.getTargetDataLine(info.getFormats()[0]);
             sendLine.open(audioFormat);
-            sendLine.start();
-            int bufferSize = (int) audioFormat.getSampleRate() * audioFormat.getFrameSize() * 2;
+            sendLine.start();                   // Opens the mic and starts to get data from it
+            System.out.println("Opened mic");
+            int bufferSize = (int) audioFormat.getSampleRate() / 4;// * audioFormat.getFrameSize();
             byte buffer[] = new byte[bufferSize];
             BufferedOutputStream bufferedStream = new BufferedOutputStream(socket.getOutputStream(), bufferSize);
-            while (sendLine.isRunning() && running) {
+            System.out.println("Buffersize for sending:" + bufferSize);
+            while (sendLine.isActive() || running) {
                 int count = sendLine.read(buffer, 0, buffer.length);
-                if (count > 0 && (sendLine.getLevel() > 0.01)) { // Arbitrary volume level to reduce bandwidth
-                    bufferedStream.write(buffer, 0, count);
-                    InputStream input = new ByteArrayInputStream(buffer);
-                    final AudioInputStream ais = new AudioInputStream(input, audioFormat, buffer.length / audioFormat.getFrameSize());
+                if (count > 0 || (sendLine.getLevel() > 0)) { // Arbitrary volume level (not working) to reduce bandwidth
+                    bufferedStream.write(buffer, 0, bufferSize);
+                    System.out.println("Sending audio: " + sendLine.getBufferSize() + " Level: " + sendLine.getLevel());
+                    //System.out.println("Sending: " + Arrays.toString(buffer));
 
                 }
             }
-            bufferedStream.close();
+            //bufferedStream.close();
+            sendLine.close();
 
         } catch (LineUnavailableException | IOException e) {
             System.out.println("Error in capturing audio with connection " + socket.toString());
             //e.printStackTrace();
+        } finally {
+            setRunning(false);
         }
     }
 }
 
+/**
+ * This class starts a thread with a ServerSocket and waits to connect,
+ * then just plays the audio from the socket connection out of the main sound line.
+ */
 class receiveAudioThread extends Thread {
     private boolean running = true;
-    Socket socket;
+    private ServerSocket socket;
+
+    receiveAudioThread(ServerSocket socket) {
+        this.socket = socket;
+
+    }
+
+    synchronized void setRunning(boolean running) { // Lets us control this Thread from another
+        this.running = running;
+    }
 
     public void run() {
+        System.out.println("Starting audio!");
+        AudioFormat format;
+        format = new AudioFormat(48000, 16, 1, true, false);
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+        BufferedInputStream bufferedInputStream = null;
+        SourceDataLine soundData = null;
+        AudioInputStream inputAStream = null;
         try {
-            Main.startPlayingAudio(new ServerSocket(1201));
+            soundData = AudioSystem.getSourceDataLine(format);  // Essentially this is the speaker object
+            soundData.open(format);
+            System.out.println("Opened Sound");
+            Socket connection = socket.accept();                // Get the connection from other person
+            bufferedInputStream = new BufferedInputStream(connection.getInputStream()); // Get Input from socket
+            System.out.println("Received connection!!");
+            soundData.start();
+            int bufferSize = (int) format.getSampleRate() / 4;// * format.getFrameSize();
+            byte buffer[] = new byte[bufferSize];
+            try {
+                while (soundData.isOpen() && running) {
+                    int count = bufferedInputStream.read(buffer, 0, bufferSize);
+                    if (count > 0) {
+                        soundData.write(buffer, 0, count);
+                        System.out.println("Getting audio at :" + soundData.getBufferSize());
+                    }
+                }
+                bufferedInputStream.close();        // Close the stream when done
+            } catch (IOException e) {
+                System.out.println("Stream problem");
+                e.printStackTrace();
+            }
+        } catch (LineUnavailableException e) {
+            System.out.println("Line unavailable");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("IO exception!");
+        } finally {
+            assert soundData != null;
+            soundData.close();                  // Always close the soundLine
         }
+
     }
 }
 
@@ -271,8 +279,8 @@ class actionCall implements ActionListener {    // Fires when "Call" button is p
         if (!endTheCall) {
             //TODO: Initiate the call - Query and set up the correct socket, using test socket for now
             try {
-                (new receiveAudioThread()).start();
-                audioSendSocket = new Socket("localhost", 1201);
+                (new receiveAudioThread(new ServerSocket(1201))).start();   // Receive audio firstly
+                audioSendSocket = new Socket("localhost", 1201);        // Change localhost back to Main.serverIP
                 audioSendThread = new sendAudioThread(audioSendSocket);
 
                 audioSendThread.start();// Start that Thread
@@ -282,7 +290,7 @@ class actionCall implements ActionListener {    // Fires when "Call" button is p
             }
         } else {
             // TODO: End the call
-            if (audioSendThread == null || audioSendThread.isAlive()) {
+            if (audioSendThread != null && audioSendThread.isAlive()) {
                 audioSendThread.setRunning(false);
             }
             //audioSendThread.setRunning(false);
