@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.User
- * Last modified: 4/5/16 12:20 AM
+ * Last modified: 4/14/16 2:45 AM
  */
 
 import javax.swing.*;
@@ -19,9 +19,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import static main.Main.Username;
-
 /**
+ * Generic user in the program, used by the contactsList on the left side of GUI.
+ * Implements toString, returning the username of the user.
  * Created by Garrett on 2/11/2016.
  */
 class User {
@@ -58,13 +58,14 @@ public class mainForm extends JFrame {
     int currentUser = 0;
     boolean typingMessage = false;
     boolean inCallNow = false;
+    static String username = "";           // User's own name
     ArrayList<User> users = new ArrayList<>(6);
 
     public mainForm() {
         try {
-            users.add(new User("Garrett Martin", InetAddress.getByName("127.0.0.1"), 101));
-            users.add(new User("Matt", InetAddress.getByName("149.0.0.1"), 102));
-            users.add(new User("Patrick", InetAddress.getByName("217.0.0.1"), 103));
+            users.add(new User("GarrettMartin", InetAddress.getByName("127.0.0.1"), 101));
+            users.add(new User("MattM", InetAddress.getByName("149.164.2.1"), 102));
+            users.add(new User("PatrickG", InetAddress.getByName("217.0.0.1"), 103));
         } catch (UnknownHostException e) {
         }
         //// SETTING UP GUI ELEMENTS  ////
@@ -81,12 +82,14 @@ public class mainForm extends JFrame {
         JMenu fileMenu = new JMenu("File");
         JMenuItem addUserItem = new JMenuItem("Add new user");
         JMenuItem delUserItem = new JMenuItem("Remove user");
+        JMenuItem setNameItem = new JMenuItem("Set own username");
         JMenuItem quitItem = new JMenuItem("Quit");
         JMenu chatMenu = new JMenu("Chat", true);
         JMenuItem clearChatItem = new JMenuItem("Clear chat history to one line");
 
         fileMenu.add(addUserItem);
         fileMenu.add(delUserItem);
+        fileMenu.add(setNameItem);
         fileMenu.add(quitItem);
         chatMenu.add(clearChatItem);
         menuBar.add(fileMenu);
@@ -120,7 +123,7 @@ public class mainForm extends JFrame {
                         // Sets the userLabel to the currently selected name on the left in GUI.
                         //TODO: Make changing the user work correctly - tear down old connection and make new one
                         //Main.changeConnection(users.get(currentUser).address.toString().substring(1), users.get(currentUser).userID);
-                        setTitle("RSVoiP messaging program - " + users.get(currentUser).toString());
+                        setTitle("RSVoiP messaging program: " + username + " - talking to: " + users.get(currentUser).toString());
                     }
                 }
             }
@@ -160,7 +163,6 @@ public class mainForm extends JFrame {
                     JOptionPane.showMessageDialog(getContentPane(), "Error: Invalid IP address. Cancelling add user",
                             "Error!", JOptionPane.ERROR_MESSAGE);
                 }
-
             }
         });
         delUserItem.addActionListener(new ActionListener() {
@@ -178,21 +180,26 @@ public class mainForm extends JFrame {
                 }
             }
         });
+        setNameItem.addActionListener(new ActionListener() {
+            @Override public void actionPerformed(ActionEvent e) {
+                String name = JOptionPane.showInputDialog("Enter your desired username:", users.get(0).toString());
+                if (!name.isEmpty()) {
+                    username = name.trim();
+                    setTitle("RSVoiP messaging program: " + username + " - talking to: " + users.get(currentUser).toString());
+                }
+            }
+        });
         clearChatItem.addActionListener(new clearChatHistory());
         callButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 actionCall call = new actionCall(users.get(currentUser), inCallNow);
                 call.actionPerformed(e);
+                inCallNow = !inCallNow;
             }
         });
         sendButton.addActionListener((new chatListener())); // Send message
         chatText.addActionListener((new chatListener()));   // Send message when enter pressed
-        //// DONE SETTING UP LISTENERS  ////
-        //// FINALIZING GUI             ////
-        this.pack();
-        this.setLocationByPlatform(true);
-        this.setVisible(true);
         chatText.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -201,11 +208,9 @@ public class mainForm extends JFrame {
                     chatText.setFont(standardFont);
                     chatText.setText("");
                     typingMessage = true;
-
                 } else {
                     chatText.setFont(standardFont);
                 }
-
             }
 
             @Override
@@ -220,6 +225,11 @@ public class mainForm extends JFrame {
                 }
             }
         });
+        //// DONE SETTING UP LISTENERS  ////
+        //// FINALIZING GUI             ////
+        this.pack();
+        this.setLocationByPlatform(true);
+        this.setVisible(true);
     }
 
     class chatListener implements ActionListener {
@@ -271,7 +281,6 @@ public class mainForm extends JFrame {
                 System.out.println(e1);
                 chatArea.setText("");          // If setting fails, set to nothing
             }
-
         }
     }
 
@@ -283,7 +292,7 @@ public class mainForm extends JFrame {
     }
 
     static void setUserName(String user) {
-        Username = user;
+        username = user;
     }
 
     public void addChat(String chat) {

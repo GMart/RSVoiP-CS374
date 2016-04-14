@@ -6,7 +6,7 @@
       <xy x="20" y="20" width="731" height="443"/>
     </constraints>
     <properties>
-      <minimumSize width="300" height="200"/>
+      <minimumSize width="640" height="300"/>
       <name value="rootPanel"/>
     </properties>
     <clientProperties>
@@ -17,8 +17,8 @@
       <splitpane id="3cb33" binding="splitPanel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <minimum-size width="500" height="400"/>
-            <preferred-size width="600" height="400"/>
+            <minimum-size width="640" height="350"/>
+            <preferred-size width="680" height="380"/>
           </grid>
         </constraints>
         <properties>
