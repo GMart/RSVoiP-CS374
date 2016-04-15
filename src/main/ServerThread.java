@@ -1,11 +1,11 @@
 package main;
 /*
- Copyright (c) 2016.
- By Garrett Martin (GMart on Github),
-    Patrick Gephart (ManualSearch),
-  & Matt Macke (BanishedAngel)
- Class: main.ServerThread
- Last modified: 3/27/16 1:15 AM
+ * Copyright (c) 2016.
+ * By Garrett Martin (GMart on Github),
+ *    Patrick Gephart (ManualSearch),
+ *  & Matt Macke (BanishedAngel)
+ * Class: main.ServerThread
+ * Last modified: 4/14/16 3:18 PM
  */
 
 
@@ -15,6 +15,9 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 
+/**
+ * @author Matt Macke
+ */
 public class ServerThread extends Thread {
     private Server server; // The server
     private Socket socket; // The client socket

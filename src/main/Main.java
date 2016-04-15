@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.Main
- * Last modified: 4/14/16 3:02 AM
+ * Last modified: 4/15/16 2:21 PM
  */
 
 /**
@@ -20,6 +20,12 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.*;
 
+/**
+ * Where the program starts from.
+ *
+ * @author Garrett Martin
+ * @author Matt Macke
+ */
 public class Main {
     static mainForm contentForm;
     static clientUIThread client;
@@ -72,6 +78,8 @@ public class Main {
 
     /**
      * This method will connect the Buddy Server and update the IP address for the user.
+     *
+     * @throws IOException - If there is a problem with the socket or getting local IP address.
      */
     public static void sendIPToServer() throws IOException {
         Socket socket = null;
@@ -157,8 +165,9 @@ class sendAudioThread extends Thread {
             socket.setTcpNoDelay(true);
             socket.setTrafficClass(SocketOptions.IP_TOS);
             socket.setPerformancePreferences(1, 5, 2);
+            //socket.setSoTimeout(6000);
             System.out.println("Setting up sending audio!");
-
+            Main.contentForm.addChat("Calling user at " + socket.getInetAddress().toString() + ":" + socket.getPort());
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
             TargetDataLine sendLine = AudioSystem.getTargetDataLine(info.getFormats()[0]);
             sendLine.open(audioFormat);
@@ -181,6 +190,7 @@ class sendAudioThread extends Thread {
             sendLine.close();
             socket.close();
             System.out.println("Stopped sending!");
+            Main.contentForm.addChat("Hung up call");
         } catch (IOException | LineUnavailableException e) {
             System.out.println("Error in capturing audio with connection " + socket.toString());
             //e.printStackTrace();
@@ -214,6 +224,7 @@ class receiveAudioThread extends Thread {
         try (SourceDataLine soundData = AudioSystem.getSourceDataLine(format)) {    // Try with resource
             soundData.open(format);
             System.out.println("Opened Sound");
+            socket.setSoTimeout(20000);
             Socket connection = socket.accept();                // Get the connection from other person
             bufferedInputStream = new BufferedInputStream(connection.getInputStream()); // Get Input from socket
             System.out.println("Received connection!!");
@@ -229,6 +240,7 @@ class receiveAudioThread extends Thread {
                     }
                 }
                 bufferedInputStream.close();        // Close the stream when done
+                soundData.close();
                 socket.close();
             } catch (IOException e) {
                 System.out.println("Stream problem");
@@ -249,7 +261,7 @@ class actionCall implements ActionListener {    // Fires when "Call" button is p
     static receiveAudioThread audioRecvThread = null; // Static so this class doesn't have to manage the threads all the time
 
     /**
-     * Gets the name, ?Address?, and status of the call. First button press will start call, second will end.
+     * Receives the name and status of the call. Will start or end a call depending on endCall.
      *
      * @param user The username of the person currently selected
      * @param endCall Whether we should end the call instead of starting one.
@@ -268,26 +280,25 @@ class actionCall implements ActionListener {    // Fires when "Call" button is p
     public synchronized void actionPerformed(ActionEvent e) {
         Socket audioSendSocket;
 
-        JOptionPane.showMessageDialog(main.mainForm.getFrames()[0], "Trying to call: " + name);
         if (!endTheCall) {
             //TODO: Initiate the call - Query and set up the correct socket, using test socket for now
             try {
                 audioRecvThread = new receiveAudioThread(new ServerSocket(Main.audioPort));  // Receive audio firstly
                 audioRecvThread.start();
-                audioSendSocket = new Socket(Main.serverIP, Main.audioPort);         // Change localhost back to Main.serverIP
-                audioSendThread = new sendAudioThread(audioSendSocket);
+                audioSendSocket = new Socket(Main.serverIP, Main.audioPort);    // Set up socket to actually send
 
+                audioSendThread = new sendAudioThread(audioSendSocket);
                 audioSendThread.start();// Start that Thread
             } catch (IOException e1) {
-                System.out.println("Calling or socket problem");
+                System.out.println("Problem IP address or starting threads  ");
                 e1.printStackTrace();
             }
         } else {
             // TODO: End the call
-            if (audioSendThread != null && audioSendThread.isAlive()) {
+            if (audioSendThread != null || audioSendThread.isAlive()) {
                 audioSendThread.setRunning(false);
             }
-            if (audioRecvThread != null && audioRecvThread.isAlive()) {
+            if (audioRecvThread != null || audioRecvThread.isAlive()) {
                 audioRecvThread.setRunning(false);
             }
         }

@@ -1,11 +1,11 @@
 package main;
 /*
- Copyright (c) 2016.
- By Garrett Martin (GMart on Github),
-    Patrick Gephart (ManualSearch),
-  & Matt Macke (BanishedAngel)
- Class: main.Server
- Last modified: 3/27/16 1:15 AM
+ * Copyright (c) 2016.
+ * By Garrett Martin (GMart on Github),
+ *    Patrick Gephart (ManualSearch),
+ *  & Matt Macke (BanishedAngel)
+ * Class: main.Server
+ * Last modified: 4/14/16 3:18 PM
  */
 
 
@@ -119,8 +119,8 @@ public class Server {
     /**
      * Main method - Not run
      *
-     * @param args
-     * @throws Exception
+     * @param args - Not used
+     * @throws Exception - Should not happen
      */
     static public void main(String args[]) throws Exception {
         // Get the port #

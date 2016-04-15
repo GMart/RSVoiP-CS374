@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.User
- * Last modified: 4/14/16 2:45 AM
+ * Last modified: 4/15/16 2:16 PM
  */
 
 import javax.swing.*;
@@ -104,6 +104,7 @@ public class mainForm extends JFrame {
         chatArea.addMouseListener(popupListener);
         //// DONE SETTING UP GUI    ////
         //// SETTING UP LISTENERS   ////
+
         contactsModel = new DefaultListModel();
         contactsList.setListData(users.toArray());
         //contactsList.setModel(contactsModel);
@@ -194,6 +195,8 @@ public class mainForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 actionCall call = new actionCall(users.get(currentUser), inCallNow);
+                if (!inCallNow)
+                    JOptionPane.showMessageDialog(main.mainForm.getFrames()[0], "Trying to call: " + users.get(currentUser));
                 call.actionPerformed(e);
                 inCallNow = !inCallNow;
             }
@@ -286,15 +289,28 @@ public class mainForm extends JFrame {
 
     /**
      * Allows the Chat Client to clear the text box when text is successfully sent
+     *
+     * @see main.clientUIThread#processMessage(String)
      */
     public void clearChatText() {
         chatText.setText("");
     }
 
+    /**
+     * Sets the global username used in the {@link mainForm}.
+     *
+     * @param user string of the user's username
+     */
     static void setUserName(String user) {
         username = user;
     }
 
+    /**
+     * Adds text to the JTextArea in the GUI.
+     *
+     * @param chat String to add to the chat text area. Will have newline added.
+     * @see main.clientUIThread#run
+     */
     public void addChat(String chat) {
         chatArea.append(chat + "\n");
     }
