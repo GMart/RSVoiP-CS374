@@ -34,7 +34,7 @@ public class Main {
     static int controlPort = 1199; // BuddyServer / proxy server control port
     static int audioPort = 1201;   // Audio send/receive port, may change when buddy server code is done
     static String Username; // User's own Name
-    static String serverIP = "127.0.0.1";
+    static String serverIP = "149.164.136.1";
     static String userID;
 
     public static void main(String[] args) throws IOException {
@@ -78,7 +78,8 @@ public class Main {
 
     /**
      * This method will connect the Buddy Server and update the IP address for the user.
-     *
+     * This method will then request a port from the server and store the port sent back
+     * in the variable audioPort.
      * @throws IOException - If there is a problem with the socket or getting local IP address.
      */
     public static void sendIPToServer() throws IOException {
@@ -108,10 +109,13 @@ public class Main {
         // Update your IP on server
         try {
             socket = new Socket(serverIP, controlPort);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
             out = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
             out.write(str, 0, str.length());
             out.write(str2, 0, str2.length());
+            audioPort = Integer.parseInt(in.readLine());
             out.close();
+            in.close();
         } catch (IOException e) {
             System.err.print(e);
         } finally {
