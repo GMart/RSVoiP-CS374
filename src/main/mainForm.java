@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.User
- * Last modified: 4/15/16 2:16 PM
+ * Last modified: 4/19/16 2:54 PM
  */
 
 import javax.swing.*;
@@ -194,10 +194,14 @@ public class mainForm extends JFrame {
         callButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                actionCall call = new actionCall(users.get(currentUser), inCallNow);
-                if (!inCallNow)
+                CallingStarter call = new CallingStarter(users.get(currentUser), inCallNow);
+                if (!inCallNow) {
                     JOptionPane.showMessageDialog(main.mainForm.getFrames()[0], "Trying to call: " + users.get(currentUser));
-                call.actionPerformed(e);
+                    callButton.setText("Hangup");
+                } else
+                    callButton.setText("Call");
+
+                call.actionPerformed();
                 inCallNow = !inCallNow;
             }
         });
@@ -314,5 +318,13 @@ public class mainForm extends JFrame {
     public void addChat(String chat) {
         chatArea.append(chat + "\n");
     }
+
+    /**
+     * Sets the call button's text.
+     *
+     * @param text the string used to set the text
+     * @see #getText
+     */
+    public void setCallButtonText(String text) {callButton.setText(text);}
 }
 
