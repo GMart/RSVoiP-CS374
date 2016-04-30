@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.Main
- * Last modified: 4/30/16 1:00 PM
+ * Last modified: 4/30/16 1:35 PM
  */
 
 /**
@@ -191,6 +191,7 @@ class CallingStarter {    // Fires when "Call" button is pressed.
                 Main.contentForm.addChat("Calling user at " + audioSendThread.socket.getInetAddress().getHostAddress() + ":" + audioSendSocket.getPort());
             } catch (IOException e1) {
                 System.out.println("Problem IP address or starting threads  ");
+                Main.contentForm.addChat("Failed to connect: Person did not pick up.");
                 e1.printStackTrace();
             }
         } else {
