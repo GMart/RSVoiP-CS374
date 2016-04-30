@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.User
- * Last modified: 4/19/16 2:54 PM
+ * Last modified: 4/30/16 1:00 PM
  */
 
 import javax.swing.*;
@@ -15,6 +15,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -73,13 +74,37 @@ public class mainForm extends JFrame {
         Font standardFont = new Font("Segoe", Font.PLAIN, 15);
         Font grayFont = new Font("Segoe", Font.ITALIC, 12);
 
-        this.setTitle("RSVoiP messaging program - v0.2");
+        this.setTitle("RSVoiP messenger - v0.3");
         this.setContentPane(rootPanel);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        this.setAutoRequestFocus(true);
+
+        WindowAdapter closer = new WindowAdapter() {
+            /**
+             * Listener that runs when the window is closed..
+             * Partially from https://tips4java.wordpress.com/2009/05/01/closing-an-application/
+             * @param e
+             */
+            @Override public void windowClosing(WindowEvent e) {
+                JFrame frame = (JFrame) e.getSource();
+                int result = JOptionPane.showConfirmDialog(getFocusOwner(), "Are you sure you want to close?",
+                        "About to close!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (result == JOptionPane.YES_OPTION) {
+                    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                    if (inCallNow) {
+                        CallingStarter call = new CallingStarter(users.get(currentUser), true);
+                        call.actionPerformed(); // End any ongoing calls
+                    }
+                } else
+                    frame.toFront();
+            }
+        };
         //this.setTitle("RSVoiP messaging program - " + Username);
 
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
+        JMenu optionsMenu = new JMenu("Options");
+        JCheckBoxMenuItem localOpt = new JCheckBoxMenuItem("Use server as voice proxy", false);
         JMenuItem addUserItem = new JMenuItem("Add new user");
         JMenuItem delUserItem = new JMenuItem("Remove user");
         JMenuItem setNameItem = new JMenuItem("Set own username");
@@ -91,8 +116,10 @@ public class mainForm extends JFrame {
         fileMenu.add(delUserItem);
         fileMenu.add(setNameItem);
         fileMenu.add(quitItem);
+        optionsMenu.add(localOpt);
         chatMenu.add(clearChatItem);
         menuBar.add(fileMenu);
+        menuBar.add(optionsMenu);
         menuBar.add(chatMenu);
         this.setJMenuBar(menuBar);
 
@@ -105,6 +132,7 @@ public class mainForm extends JFrame {
         //// DONE SETTING UP GUI    ////
         //// SETTING UP LISTENERS   ////
 
+        this.addWindowListener(closer);
         contactsModel = new DefaultListModel();
         contactsList.setListData(users.toArray());
         //contactsList.setModel(contactsModel);
@@ -124,7 +152,7 @@ public class mainForm extends JFrame {
                         // Sets the userLabel to the currently selected name on the left in GUI.
                         //TODO: Make changing the user work correctly - tear down old connection and make new one
                         //Main.changeConnection(users.get(currentUser).address.toString().substring(1), users.get(currentUser).userID);
-                        setTitle("RSVoiP messaging program: " + username + " - talking to: " + users.get(currentUser).toString());
+                        setTitle("RSVoiP messenger: " + username + " - talking to: " + users.get(currentUser).toString());
                     }
                 }
             }
@@ -134,7 +162,12 @@ public class mainForm extends JFrame {
         quitItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                Window window = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+
+                if (window != null) {
+                    WindowEvent windowClosing = new WindowEvent(window, WindowEvent.WINDOW_CLOSING);
+                    window.dispatchEvent(windowClosing);
+                }
             }
         });
         addUserItem.addActionListener(new ActionListener() {
@@ -147,6 +180,7 @@ public class mainForm extends JFrame {
                                     "Add new user",
                                     JOptionPane.QUESTION_MESSAGE);
                     String newAddrString = "127.0.0.01";
+                    //TODO: Get the right IP address for each new user added.
                     String newUserID = "";
                     while (newUserID.isEmpty()) {
                         newUserID =
@@ -186,11 +220,25 @@ public class mainForm extends JFrame {
                 String name = JOptionPane.showInputDialog("Enter your desired username:", users.get(0).toString());
                 if (!name.isEmpty()) {
                     username = name.trim();
-                    setTitle("RSVoiP messaging program: " + username + " - talking to: " + users.get(currentUser).toString());
+                    setTitle("RSVoiP messenger: " + username + " - talking to: " + users.get(currentUser).toString());
                 }
             }
         });
         clearChatItem.addActionListener(new clearChatHistory());
+        localOpt.addItemListener(new ItemListener() {
+            @Override public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.DESELECTED)
+                    Main.serverMode = false;
+                else {
+                    Main.serverMode = true;
+                    try {
+                        Main.sendIPToServer();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
         callButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -210,7 +258,7 @@ public class mainForm extends JFrame {
         chatText.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                super.focusGained(e);
+                //super.focusGained(e);
                 if (!typingMessage) {
                     chatText.setFont(standardFont);
                     chatText.setText("");
@@ -222,7 +270,7 @@ public class mainForm extends JFrame {
 
             @Override
             public void focusLost(FocusEvent e) {
-                super.focusLost(e);
+                //super.focusLost(e);
                 if (!typingMessage) {
                     chatText.setFont(grayFont);
                 } else if (chatText.getText().isEmpty()) {
@@ -244,7 +292,8 @@ public class mainForm extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (typingMessage)
-                Main.client.processMessage(chatText.getText());
+                if (Main.client != null)
+                    Main.client.processMessage(chatText.getText());
         }
     }
 

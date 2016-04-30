@@ -6,14 +6,13 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.sendAudioThread
- * Last modified: 4/27/16 12:28 PM
+ * Last modified: 4/30/16 1:00 PM
  */
 
 import javax.sound.sampled.*;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketOptions;
 
 /**
  * Sends audio from the first mic to the socket, buffered.
@@ -37,10 +36,9 @@ class sendAudioThread extends Thread {
         setRunning(true);
         try {
             socket.setTcpNoDelay(true);
-            socket.setTrafficClass(SocketOptions.IP_TOS);
+            //socket.setTrafficClass(SocketOptions.IP_TOS);
             socket.setPerformancePreferences(1, 5, 2);
             System.out.println("Setting up sending audio!");
-
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
             TargetDataLine sendLine = AudioSystem.getTargetDataLine(info.getFormats()[0]);
             sendLine.open(audioFormat);
@@ -62,12 +60,13 @@ class sendAudioThread extends Thread {
             bufferedStream.close();
             sendLine.close();
             socket.close();
-            System.out.println("Stopped sending!");
+
             Main.contentForm.addChat("Hung up call");
         } catch (IOException | LineUnavailableException e) {
             System.out.println("Error in capturing audio with connection " + socket.toString());
             //e.printStackTrace();
         } finally {
+            System.out.println("Stopped sending!");
             setRunning(false);
         }
     }

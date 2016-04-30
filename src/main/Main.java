@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.Main
- * Last modified: 4/27/16 12:31 PM
+ * Last modified: 4/30/16 1:00 PM
  */
 
 /**
@@ -30,21 +30,21 @@ public class Main {
     static clientUIThread client;
     //static receiveAudioThread mainRecvThread = null;    // Listens for incoming calls
     private static Server server;
-    static int port = 1200; // For chatting
+    static int port = 1200; // For chat function
     static int controlPort = 1199; // BuddyServer / proxy server control port
     static int audioPort = 1201;   // Audio send/receive port, may change when buddy server code is done
     static String Username; // User's own Name
     static String serverIP = "127.0.0.1";
+    static boolean serverMode = false;
     private static String userID;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         class serverThread implements Runnable {
             @Override
             public synchronized void run() {
                 try {
                     server = new Server(port);
-                    wait(100);
                 } catch (Exception ex) {
                     System.out.println("Error in server, could not start!");
                 }
@@ -54,9 +54,9 @@ public class Main {
         //RtspDecoder rtspDecoder = new RtspDecoder(); // In the future use RTP?
         //RtspEncoder rtspEncoder = new RtspEncoder();
         // Start up server and client
-        (new Thread(new serverThread())).start();
+        //(new Thread(new serverThread())).start();
 
-        client = new clientUIThread("serverIP");
+        //client = new clientUIThread(serverIP);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -67,9 +67,13 @@ public class Main {
 
         System.out.println("GUI set up!");
         serverIP = JOptionPane.showInputDialog("Enter IP address to connect to:", serverIP);
-        sendIPToServer();
+        //sendIPToServer();
 
-        CallingStarter.audioRecvThread = new receiveAudioThread(new ServerSocket(audioPort));
+        try {
+            CallingStarter.audioRecvThread = new receiveAudioThread(new ServerSocket(audioPort));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         CallingStarter.audioRecvThread.start();     // Start listening for incoming calls
 
         //sendAudioThread(socket);         // Testing audio sending and receiving
@@ -120,7 +124,7 @@ public class Main {
         } catch (IOException e) {
             System.err.print(e);
         } finally {
-            socket.close();
+            if (socket != null) socket.close();
         }
     }
 
@@ -147,7 +151,7 @@ public class Main {
 }
 
 class CallingStarter {    // Fires when "Call" button is pressed.
-    private String name;
+    private User user;
     private boolean endTheCall;
     static sendAudioThread audioSendThread = null; // The Thread used for sending audio.
     static receiveAudioThread audioRecvThread = null; // Static so this class doesn't have to manage the threads all the time
@@ -159,7 +163,7 @@ class CallingStarter {    // Fires when "Call" button is pressed.
      * @param endCall Whether we should end the call instead of starting one.
      */
     CallingStarter(User user, boolean endCall) {
-        name = user.toString();         // Grab the name of the user
+        this.user = user;         // Grab the name of the user
         endTheCall = endCall;
     }
 
@@ -172,14 +176,16 @@ class CallingStarter {    // Fires when "Call" button is pressed.
         if (!endTheCall) {
             //TODO: Initiate the call - Query and set up the correct socket, using test socket for now
             try {
-                if (!audioRecvThread.isRunning()) { // First, reset RecvThread
+                if (audioRecvThread == null || !audioRecvThread.isRunning()) {  // First, reset RecvThread
                     audioRecvThread = new receiveAudioThread(new ServerSocket(Main.audioPort));  // New Receive thread
                     audioRecvThread.setMakingACall(true);
                     audioRecvThread.start();        // Start the receiving process
                 }
                 audioRecvThread.setMakingACall(true);   // We are making the call, so don't make another thread
 
-                audioSendSocket = new Socket(Main.serverIP, Main.audioPort);    // Set up socket to actually send
+                // Set up socket to actually send, using serverIP if server or indivual IP if not.
+                System.out.println("Server Mode: " + Main.serverMode + ", IP sending to: " + (Main.serverMode ? Main.serverIP : user.address));
+                audioSendSocket = (Main.serverMode ? new Socket(Main.serverIP, Main.audioPort) : new Socket(user.address, Main.audioPort));
                 audioSendThread = new sendAudioThread(audioSendSocket);
                 audioSendThread.start();// Start that Thread
                 Main.contentForm.addChat("Calling user at " + audioSendThread.socket.getInetAddress().getHostAddress() + ":" + audioSendSocket.getPort());
@@ -194,6 +200,10 @@ class CallingStarter {    // Fires when "Call" button is pressed.
             }
             if (audioRecvThread != null && audioRecvThread.isAlive()) {
                 audioRecvThread.setRunning(false);
+                try {       // Restart listening for calls on the receive port
+                    audioRecvThread = new receiveAudioThread(new ServerSocket(Main.audioPort));
+                } catch (IOException ignored) {
+                }
             }
         }
     }
