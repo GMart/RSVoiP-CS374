@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.receiveAudioThread
- * Last modified: 4/30/16 1:00 PM
+ * Last modified: 4/30/16 4:12 PM
  */
 
 import javax.sound.sampled.*;
@@ -60,7 +60,7 @@ class receiveAudioThread extends Thread {
                     try {           // Wait for [TIMEOUT] seconds
                         connection = socket.accept();
                     } catch (SocketTimeoutException e) {
-                        System.out.println(e.getMessage());
+                        //System.out.println(e.getMessage());
                     }
                 } else {            // If we should stop:
                     socket.close(); // Close the socket
@@ -79,6 +79,7 @@ class receiveAudioThread extends Thread {
                     Main.contentForm.setCallButtonText("Hangup");
                     Main.contentForm.inCallNow = true; // Set the calling state to true
                     CallingStarter.audioSendThread = new sendAudioThread(connection);
+                    CallingStarter.audioSendThread.start();
                 } else { // If they don't want to make the call, close the socket to tell the other person they are not welcome
                     connection.close();
                     return;             // Exit the method (Sounddata is closed automatically)

@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.Main
- * Last modified: 4/30/16 1:35 PM
+ * Last modified: 4/30/16 4:26 PM
  */
 
 /**
@@ -34,7 +34,7 @@ public class Main {
     static int controlPort = 1199; // BuddyServer / proxy server control port
     static int audioPort = 1201;   // Audio send/receive port, may change when buddy server code is done
     static String Username; // User's own Name
-    static String serverIP = "127.0.0.1";
+    static String serverIP = "192.168.1.2";
     static boolean serverMode = false;
     private static String userID;
 
@@ -89,6 +89,7 @@ public class Main {
     public static void sendIPToServer() throws IOException {
         Socket socket = null;
         OutputStreamWriter out;
+        int i = 0;
 
         // Get public IP
         URL whatismyip;
@@ -103,21 +104,29 @@ public class Main {
         } catch (IOException e) {
             ip = InetAddress.getLocalHost().getHostAddress();
         }
+        System.out.println("My IP: " + ip);
 
         // Craft string to send to server
         String str;
         userID = JOptionPane.showInputDialog("What is your userID?");
-        str = "1/" + userID + "/" + ip;
-        String str2 = "5";
+        str = "1/" + userID + "/" + ip + '\0';
+
+        String str2 = "5" + '\0';
 
         // Update your IP on server
         try {
             socket = new Socket(serverIP, controlPort);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
             out = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
-            out.write(str, 0, str.length());
+            //out.write(str, 0, str.length());
             out.write(str2, 0, str2.length());
-            audioPort = Integer.parseInt(in.readLine());
+            out.flush();
+            do {
+                System.out.println("Getting port...");
+                audioPort = Integer.parseInt(in.readLine());
+                i++;
+            } while (!in.ready() && i < 100);
+
             out.close();
             in.close();
             System.out.println("IP sent to server");

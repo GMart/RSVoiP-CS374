@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.User
- * Last modified: 4/30/16 1:00 PM
+ * Last modified: 4/30/16 4:05 PM
  */
 
 import javax.swing.*;
@@ -66,7 +66,7 @@ public class mainForm extends JFrame {
         try {
             users.add(new User("GarrettMartin", InetAddress.getByName("127.0.0.1"), 101));
             users.add(new User("MattM", InetAddress.getByName("149.164.2.1"), 102));
-            users.add(new User("PatrickG", InetAddress.getByName("217.0.0.1"), 103));
+            users.add(new User("PatrickG", InetAddress.getByName("192.168.1.21"), 103));
         } catch (UnknownHostException e) {
         }
         //// SETTING UP GUI ELEMENTS  ////
