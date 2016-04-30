@@ -6,26 +6,50 @@
 #include<sys/socket.h>
 #include<arpa/inet.h> //inet_addr
 #include<unistd.h> //write
+#include<errno.h> //errors
+
+/*
+ //TRY TO RECIEVE AND TEST [DEL ME]
+				datarecvA = recv(clientAread, clientAbuffer, 6000, 0);
+					
+					if(datarecvA)
+					{
+					printf("A: %s (%d)\n", clientAbuffer, datarecvA);
+					errsv = errno;
+					}
+					
+					printf("A, After B Socket Creation: %d\n", errsv);
+*/	
 
 int main(int argc , char *argv[])
 {
 	const int runforever = 0;
-	int clientAread = 0;
-	int clientBread = 0;
+
 	int resetA = 0;
 	int resetB = 0;
+	
+	int clientAconnect = 0;
+	int clientBconnect = 0;
 		
-		int clientAconnect = 0;
-		int clientBconnect = 0;
+	int clientAsocket = 0;
+	int clientBsocket = 0;
 		
-		
-		int clientAsocket = 0;
-		int clientBsocket = 0;
-		
-		
-		int cAsize = 0;
-		int cBsize = 0;
+	int cAsize = 0;
+	int cBsize = 0;
+	
+	struct sockaddr_in clientA = {0};
+	struct sockaddr_in clientB = {0};
 			
+	//DATA BUFFERS
+	unsigned char clientAbuffer[12000];
+	unsigned char clientBbuffer[12000];
+	
+	int clientAread = 0;
+	int clientBread = 0;
+		
+	int aHANGUP = 0;
+	int bHANGUP = 0;
+		
 	
 	//THIS DO LOOP KEEPS THE PROGRAM RUNNING FOREVER.
 	do
@@ -36,7 +60,6 @@ int main(int argc , char *argv[])
 		const char nouser[30] = "ERROR 1: NO SUCH USER EXISTS.";
 		const char invald[26] = "ERROR 2: INVALID COMMAND.";
 		const char shut[2] = "!";
-		
 
 		//SERVER REQUIRED OBJECTS
 		int socket_desc = 0;
@@ -46,8 +69,7 @@ int main(int argc , char *argv[])
 		
 		struct sockaddr_in server = {0};
 		struct sockaddr_in client = {0};
-		struct sockaddr_in clientA = {0};
-		struct sockaddr_in clientB = {0};
+		
 		
 		//CAST STRINGS FOR COMMANDS
 		char userID[3] = "XXX";
@@ -61,10 +83,6 @@ int main(int argc , char *argv[])
 		FILE *writefile = NULL;
 		FILE *readfile = NULL;
 	
-		//DATA BUFFERS
-		char clientAbuffer[2000] = {'/0'};
-		char clientBbuffer[2000] = {'/0'};
-
 		//VARIABLES
 		char client_message[2000];
 		int n = 0;
@@ -76,6 +94,33 @@ int main(int argc , char *argv[])
 	
 		int sendforever = 0;
 
+		int countup = 0;
+		int resetcounter = 0;
+		
+		
+		int aEMPTY = 0;
+		int bEMPTY = 0;
+
+		int datarecvA = 0;
+		int datarecvB = 0;
+		int errsv = 0;
+		int senderrA = 0;
+		int senderrB = 0;
+
+		if(resetA)
+		{
+			//TRY TO RECIEVE AND TEST [DEL ME]
+				datarecvA = recv(clientAread, clientAbuffer, 6000, 0);
+					
+					if(datarecvA)
+					{
+					printf("A: %s (%d)\n", clientAbuffer, datarecvA);
+					errsv = errno;
+					}
+					
+					printf("A, Start of New Loop: %d\n", errsv);
+				}
+
 		//CREATE THE SOCKET
 		socket_desc = socket(AF_INET , SOCK_STREAM , 0);
 		if (socket_desc == -1)
@@ -84,7 +129,7 @@ int main(int argc , char *argv[])
 			return -1;
 		}
 		puts("Socket created");
-		
+			
 		//PREPARE THE SOCKADDR_IN <SOCKET> STRUCTURE
 		server.sin_family = AF_INET;
 		server.sin_addr.s_addr = INADDR_ANY;
@@ -238,12 +283,14 @@ int main(int argc , char *argv[])
 				if(clientAconnect == 0)
 				{
 					clientAconnect = 1;
+					send(client_sock, "1201", 5, 0);
 				}
 				
 				//SET PORT VARIABLE TO CLIENT B
 				else if(clientBconnect == 0)
 				{
 					clientBconnect = 1;
+					send(client_sock, "1205", 5, 0);
 				}
 				
 				//REFUSE A PORT ASSIGNMENT TO THIRD CLIENT
@@ -256,7 +303,43 @@ int main(int argc , char *argv[])
 			//OPERATION 6 (flushes sockets)
 			else if(client_message[0] == '6')
 			{
-			
+				send(client_sock, "Flushing System.\n", 35, 0);
+
+				close(socket_desc);
+				close(client_sock);
+				close(clientAread);
+				close(clientBread);
+				close(clientAsocket);
+				close(clientBsocket);
+
+				resetA = 0;
+				resetB = 0;
+				clientAconnect = 0;
+				clientBconnect = 0;
+				clientAsocket = 0;
+				clientBsocket = 0;
+				cAsize = 0;
+				cBsize = 0;
+				socket_desc = 0;
+				client_sock = 0;
+				c = 0;
+				read_size = 0;
+				clientAbuffer[0] = '\0';
+				clientBbuffer[0] = '\0';
+				client_message[0] = '\0';
+				n = 0;
+				counter = 0;
+				endedfile = 0;
+				sendforever = 0;
+				countup = 0;
+				resetcounter = 0;
+				clientAread = 0;
+				clientBread = 0;
+				aHANGUP = 0;
+				bHANGUP = 0;
+				aEMPTY = 0;
+				bEMPTY = 0;
+
 			}
 
 			//SEND AN ERROR TO THE CLIENT IF THE OPERATION DOES NOT EXIST
@@ -316,7 +399,7 @@ int main(int argc , char *argv[])
 			puts("Client A Binding Done");
 			
 			//LISTEN AT CLIENT A SOCKET FOR CONNECTION
-			listen(clientAsocket, 3);
+			listen(clientAsocket, 0);
 			puts("Waiting for Client A Connection...");
 
 			//ACCEPT CLIENT A INCOMING CONNECTION
@@ -331,20 +414,28 @@ int main(int argc , char *argv[])
 			puts("Connection A Accepted.");
 		
 			//SETS RESET SO THE SOCKET ISN'T OPENED OVER AND OVER
-			resetA = 1;
+			resetA = 1;	
 		}
 	
 		//READY SOCKET FOR CLIENT B (with error checking)
 		if(clientBconnect == 1 && resetB == 0)
 		{
 			clientBsocket = socket(AF_INET, SOCK_STREAM, 0);
-			
+		
+		
 			if (clientBsocket == -1)
 			{
 				printf("Could not create client B bridge socket");
 				return -1;
 			}
-			puts("Client B Bridge Socket Created");
+			else if (clientBsocket == 0)
+			{
+				printf("Client B Socket Zero");
+			}
+			else
+			{
+				puts("Client B Bridge Socket Created");
+			}
 			
 			//CREATE SOCKET B'S SOCKADDR_IN STRUCTURE
 			clientB.sin_family = AF_INET;
@@ -352,7 +443,7 @@ int main(int argc , char *argv[])
 			clientB.sin_port = htons(1205);
 			setsockopt(clientBsocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);
 			puts("Client B SockAddr_IN Structure Created and Set");
-			
+				
 			//BIND SOCKET B
 			if(bind(clientBsocket,(struct sockaddr *)&clientB, sizeof(clientB)) < 0)
 			{
@@ -363,13 +454,13 @@ int main(int argc , char *argv[])
 			puts("Client B Binding Done");
 			
 			//LISTEN AT CLIENT B SOCKET FOR CONNECTION
-			listen(clientBsocket, 3);
+			listen(clientBsocket, 0);
 			puts("Waiting for Client B Connection...");
 
 			//ACCEPT CLIENT B INCOMING CONNECTION
 			cBsize = sizeof(struct sockaddr_in);
 			clientBread = accept(clientBsocket, (struct sockaddr *)&clientB, (socklen_t*)&cBsize);
-			printf("A: %d, %d", clientAsocket, clientBsocket);
+			
 			//CHECKS CLIENT B ACCEPTANCE
 			if (clientBsocket < 0)
 			{
@@ -380,44 +471,49 @@ int main(int argc , char *argv[])
 			//SETS RESET SO THE SOCKET ISN'T OPENED OVER AND OVER
 			resetB = 1;
 			
-		
 		}
 		
+		aHANGUP = 0;
+		bHANGUP = 0;
 		
 		if(clientAsocket != 0 && clientBsocket != 0)
 		{
-
 			do
 			{
-				//printf("Loop in Recieve");
-				if(recv(clientAsocket, clientAbuffer, 2000, 0) == 0 || recv(clientBsocket, clientBbuffer, 2000, 0) == 0)
+				if(aHANGUP == 0 && bHANGUP == 0)
 				{
-				sendforever = 1;
-				printf("End Forever");
+					datarecvA = recv(clientAread, clientAbuffer, 6000, 0);
+					datarecvB = recv(clientBread, clientBbuffer, 6000, 0);
+					
+					senderrA = send(clientAsocket, clientBbuffer, 6001, 0);
+					
+					if(senderrA)
+					{
+					printf("Send Err A: %s (%d)\n", clientAbuffer, senderrA);
+					errsv = ereno;
+					printf("%d\n", errsv);
+					return 2;
+					}
+					
+					senderrB = send(clientBsocket, clientAbuffer, 6001, 0);
+					
+					if(senderrB)
+					{
+					printf("B: %s (%d)\n", clientBbuffer, senderrB);
+					errsv = errno;
+					printf("%d\n", errsv);
+					return 3;
+					}
 				}
-				else
+					
+				for(counter = 0; counter < sizeof(clientAbuffer); counter++)
 				{
-					printf("B: %s\n", clientBbuffer);
+					clientAbuffer[counter] = '\0';
+					clientBbuffer[counter] = '\0';
 				}
-				//printf("Loop after Recieve\before Send");
-				
-				//send(clientAsocket, clientBbuffer[0], sizeof(clientBbuffer), 0);
-				//send(clientBsocket, clientAbuffer[0], sizeof(clientAbuffer), 0);
-				//printf("Sent Data");
-			
-			//LOOP THE CALL FOREVER (not really forever)
-			}while(sendforever == 0);
-			printf("Broken Send\\Recieve Loop");
+			}while(1);
 		}
-		printf("Broken IF statement loop center");
-		
-		sendforever = 0;
-	//LOOP THE SYSTEM FOREVER
-	
 	}while(runforever == 0);
-
-	
-
 
 //END PROGRAM (we'll never reach here if everything goes correctly)
 return 0;
