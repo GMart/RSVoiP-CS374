@@ -40,15 +40,15 @@ int main(int argc , char *argv[])
 	struct sockaddr_in clientA = {0};
 	struct sockaddr_in clientB = {0};
 			
-			//DATA BUFFERS
-		unsigned char clientAbuffer[12000];
-		unsigned char clientBbuffer[12000];
+	//DATA BUFFERS
+	unsigned char clientAbuffer[12000];
+	unsigned char clientBbuffer[12000];
 	
 	int clientAread = 0;
-		int clientBread = 0;
+	int clientBread = 0;
 		
-		int aHANGUP = 0;
-		int bHANGUP = 0;
+	int aHANGUP = 0;
+	int bHANGUP = 0;
 		
 	
 	//THIS DO LOOP KEEPS THE PROGRAM RUNNING FOREVER.
@@ -60,7 +60,6 @@ int main(int argc , char *argv[])
 		const char nouser[30] = "ERROR 1: NO SUCH USER EXISTS.";
 		const char invald[26] = "ERROR 2: INVALID COMMAND.";
 		const char shut[2] = "!";
-
 
 		//SERVER REQUIRED OBJECTS
 		int socket_desc = 0;
@@ -84,8 +83,6 @@ int main(int argc , char *argv[])
 		FILE *writefile = NULL;
 		FILE *readfile = NULL;
 	
-
-
 		//VARIABLES
 		char client_message[2000];
 		int n = 0;
@@ -476,6 +473,9 @@ int main(int argc , char *argv[])
 			
 		}
 		
+		aHANGUP = 0;
+		bHANGUP = 0;
+		
 		if(clientAsocket != 0 && clientBsocket != 0)
 		{
 			do
@@ -484,17 +484,18 @@ int main(int argc , char *argv[])
 				{
 					datarecvA = recv(clientAread, clientAbuffer, 6000, 0);
 					datarecvB = recv(clientBread, clientBbuffer, 6000, 0);
-					printf("BOOP");
-					senderrA = send(clientAsocket, clientBbuffer, sizeof(clientBbuffer), 0);
-					//senderrB = send(clientBsocket, clientAbuffer, sizeof(clientAbuffer), 0);
+					
+					senderrA = send(clientAsocket, clientBbuffer, 6001, 0);
 					
 					if(senderrA)
 					{
 					printf("Send Err A: %s (%d)\n", clientAbuffer, senderrA);
-					errsv = errno;
+					errsv = ereno;
 					printf("%d\n", errsv);
 					return 2;
 					}
+					
+					senderrB = send(clientBsocket, clientAbuffer, 6001, 0);
 					
 					if(senderrB)
 					{
@@ -503,12 +504,8 @@ int main(int argc , char *argv[])
 					printf("%d\n", errsv);
 					return 3;
 					}
-					
-					
-					
 				}
 					
-				
 				for(counter = 0; counter < sizeof(clientAbuffer); counter++)
 				{
 					clientAbuffer[counter] = '\0';
