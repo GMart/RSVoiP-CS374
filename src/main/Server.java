@@ -5,10 +5,8 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.Server
- * Last modified: 4/14/16 3:18 PM
+ * Last modified: 5/1/16 10:30 PM
  */
-
-
 
 import javax.swing.*;
 import java.io.DataOutputStream;
@@ -85,13 +83,11 @@ public class Server {
                 // Send a message
                 try {
                     dout.writeUTF(message);
-
                 } catch (IOException ie) {
                     System.out.println(ie);
-                } catch (NullPointerException npe){
+                } catch (NullPointerException npe) {
                     npe.printStackTrace();
                 }
-
             }
         }
     }
@@ -117,7 +113,7 @@ public class Server {
     }
 
     /**
-     * Main method - Not run
+     * Main method - Deprecated
      *
      * @param args - Not used
      * @throws Exception - Should not happen
@@ -129,21 +125,6 @@ public class Server {
         boolean boolPort = true;
         if (strPort == null) {
             port = 8888;
-        } else {
-            while (!boolPort) {
-                try {
-                    port = Integer.parseInt(strPort);
-                } catch (Exception x) {
-
-                }
-                if (port < 1024 || port > 65535) {
-                    strPort = JOptionPane
-                            .showInputDialog("Enter the port number:");
-                } else {
-                    boolPort = true;
-                }
-
-            }
         }
 
         // Create a Server object

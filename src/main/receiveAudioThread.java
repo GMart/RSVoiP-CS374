@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.receiveAudioThread
- * Last modified: 4/30/16 4:12 PM
+ * Last modified: 5/2/16 12:55 AM
  */
 
 import javax.sound.sampled.*;
@@ -18,8 +18,9 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 /**
- * This class starts a thread with a ServerSocket and waits to connect,
+ * Thread that accepts a ServerSocket and waits to connect,
  * then just plays the audio from the socket connection out of the main sound line.
+ * If the connection is made without makingACall set, then asks the user if they want to accept the call.
  */
 class receiveAudioThread extends Thread {
     private boolean running = true;
@@ -52,7 +53,7 @@ class receiveAudioThread extends Thread {
         try (SourceDataLine soundData = AudioSystem.getSourceDataLine(format)) {
             soundData.open(format);
             System.out.println("Opened Sound");
-            socket.setSoTimeout(2000);       // Wait [TIMEOUT] to receive a call
+            socket.setSoTimeout(20000);       // Wait [TIMEOUT] to receive a call
             Socket connection = null;        // Get the connection from other person
 
             while (connection == null) {
@@ -69,7 +70,7 @@ class receiveAudioThread extends Thread {
             }
             System.out.println("Received connection!!");
 
-            connection.setSoTimeout(10000);             // Set timeout to 10 secs
+            connection.setSoTimeout(20000);             // Set timeout to 10 secs
             if (makingACall) {   // If WE are making the call, then just receive quietly
                 System.out.println("Getting audio without making a new receive thread");
             } else {             // Else ask the user and make a new sendAudioThread
@@ -82,6 +83,7 @@ class receiveAudioThread extends Thread {
                     CallingStarter.audioSendThread.start();
                 } else { // If they don't want to make the call, close the socket to tell the other person they are not welcome
                     connection.close();
+                    socket.close();
                     return;             // Exit the method (Sounddata is closed automatically)
                 }
             }

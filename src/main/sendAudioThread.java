@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.sendAudioThread
- * Last modified: 4/30/16 1:00 PM
+ * Last modified: 5/1/16 10:30 PM
  */
 
 import javax.sound.sampled.*;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- * Sends audio from the first mic to the socket, buffered.
+ * Thread that sends audio from the first mic to the socket, buffered.
  * Thread created when "Call" button pressed and no call is currently in progress.
  */
 class sendAudioThread extends Thread {

@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.User
- * Last modified: 4/30/16 4:05 PM
+ * Last modified: 5/2/16 12:47 AM
  */
 
 import javax.swing.*;
@@ -123,9 +123,12 @@ public class mainForm extends JFrame {
         menuBar.add(chatMenu);
         this.setJMenuBar(menuBar);
 
-        JPopupMenu clearPopup = new JPopupMenu("Clear");
+        JPopupMenu clearPopup = new JPopupMenu("Chat Options");
+        JMenuItem selectAllItem = new JMenuItem("Select all text");
         JMenuItem clearItem = new JMenuItem("Clear chat history");
         clearItem.addActionListener(new clearChatHistory());
+        selectAllItem.addActionListener(new selectAllChat());
+        clearPopup.add(selectAllItem);
         clearPopup.add(clearItem);
         MouseListener popupListener = new PopupListener(clearPopup);
         chatArea.addMouseListener(popupListener);
@@ -150,9 +153,9 @@ public class mainForm extends JFrame {
                         currentUser = contactsList.getSelectedIndex();  // Get that user index
                         userLabel.setText(users.get(currentUser).toString());
                         // Sets the userLabel to the currently selected name on the left in GUI.
-                        //TODO: Make changing the user work correctly - tear down old connection and make new one
-                        //Main.changeConnection(users.get(currentUser).address.toString().substring(1), users.get(currentUser).userID);
-                        setTitle("RSVoiP messenger: " + username + " - talking to: " + users.get(currentUser).toString());
+                        // TODO: Make changing the user work correctly - tear down old connection and make new one
+                        Main.changeConnection(users.get(currentUser).address.toString().substring(1), users.get(currentUser).userID);
+                        setTitle("RSVoiP messenger: " + username + " talking to: " + users.get(currentUser).toString());
                     }
                 }
             }
@@ -334,9 +337,17 @@ public class mainForm extends JFrame {
                 } else
                     chatArea.setText(chatArea.getText(chatArea.getSelectionStart(), chatArea.getSelectionEnd()));
             } catch (BadLocationException e1) {
-                System.out.println(e1);
+                System.out.println(e1.offsetRequested());
                 chatArea.setText("");          // If setting fails, set to nothing
             }
+        }
+    }
+
+    class selectAllChat implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            chatArea.selectAll();
         }
     }
 
@@ -372,7 +383,6 @@ public class mainForm extends JFrame {
      * Sets the call button's text.
      *
      * @param text the string used to set the text
-     * @see #getText
      */
     public void setCallButtonText(String text) {callButton.setText(text);}
 }
