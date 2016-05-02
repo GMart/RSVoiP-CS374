@@ -490,7 +490,7 @@ int main(int argc , char *argv[])
 					if(senderrA)
 					{
 					printf("Send Err A: %s (%d)\n", clientAbuffer, senderrA);
-					errsv = ereno;
+					errsv = errno;
 					printf("%d\n", errsv);
 					return 2;
 					}
