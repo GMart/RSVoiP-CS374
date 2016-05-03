@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.Main
- * Last modified: 5/2/16 1:26 AM
+ * Last modified: 5/2/16 2:08 PM
  */
 
 /**
@@ -221,15 +221,16 @@ class CallingStarter {
                     audioRecvThread.start();        // Start the receiving process
                 }
                 audioRecvThread.setMakingACall(true);   // We are making the call, so don't make another thread
+                Main.contentForm.addChat("Calling " + user.name + "...");
 
                 audioSendSocket = callSocket(Main.serverMode);
                 if (audioSendSocket == null) throw new IOException("Person did not pick up.");
                 audioSendThread = new sendAudioThread(audioSendSocket);
                 audioSendThread.start();// Start that Thread
 
-                System.out.println("Server Mode: " + Main.serverMode + ", IP sending to: " + (Main.serverMode ? serverIP : user.address)
-                        + ":" + audioSendSocket.getPort());
-                Main.contentForm.addChat("Calling " + user.name + "...");
+                //System.out.println("Server Mode: " + Main.serverMode + ", IP sending to: " + (Main.serverMode ? serverIP : user.address)
+                //   + ":" + audioSendSocket.getPort());
+                Main.contentForm.addChat("Call connected.");
             } catch (IOException e1) {
                 System.out.println("Problem IP address or starting threads:\n" + e1.getMessage());
                 Main.contentForm.addChat("Failed to connect: Person did not pick up.");
@@ -266,7 +267,7 @@ class CallingStarter {
             socketAddress = new InetSocketAddress(user.address, Main.audioPort);
 
         //Main.contentForm.addChat("Connecting to " + socketAddress.toString() + "...");
-        while (i < 4) {
+        while (i < 40) {
             try {
                 i++;
                 socket.connect(socketAddress, 1000);    // This way we set the timeout for the socket connection
@@ -275,12 +276,10 @@ class CallingStarter {
                 Main.contentForm.addChat(".");  // "Ringing"
             } catch (IOException e) {
                 e.printStackTrace();
+                Main.contentForm.addChat(".");  // "Ringing"
             }
         }
-        if (socket.isConnected())
-            return socket;
-        else
-            return null;
+        return socket.isConnected() ? socket : null;
     }
 }
 

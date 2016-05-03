@@ -6,7 +6,7 @@ package main;
  *    Patrick Gephart (ManualSearch),
  *  & Matt Macke (BanishedAngel)
  * Class: main.User
- * Last modified: 5/2/16 12:47 AM
+ * Last modified: 5/2/16 2:01 PM
  */
 
 import javax.swing.*;
@@ -182,7 +182,7 @@ public class mainForm extends JFrame {
                                     "Add user",
                                     "Add new user",
                                     JOptionPane.QUESTION_MESSAGE);
-                    String newAddrString = "127.0.0.01";
+                    String newAddrString = JOptionPane.showInputDialog(getRootPane(), "Enter IP Address", "IP address", JOptionPane.QUESTION_MESSAGE);
                     //TODO: Get the right IP address for each new user added.
                     String newUserID = "";
                     while (newUserID.isEmpty()) {
